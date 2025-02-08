@@ -560,5 +560,3 @@ def main_menu():
             break
         else:
             print('Invalid input')
-
-main_menu()

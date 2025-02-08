@@ -1,8 +1,13 @@
+from PyQt6.QtCore import Qt
+
 from UI_design import Ui_MainWindow
 import os
+from PyQt6 import QtWidgets
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy
+from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy, QTableWidgetItem, QHeaderView
 import CampingDatabase_SQLite
+
+
 
 class Window(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -37,7 +42,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.buttons = {
             "campsite_search": self.pushButton,
             "campsite_display": self.pushButton_5,
-            "campsite_create": self.pushButton_2,
+            "campsite_create": self.pushButton_32,
             "campsite_delete": self.pushButton_3,
             "campsite_modify": self.pushButton_4,
 
@@ -60,9 +65,9 @@ class Window(QMainWindow, Ui_MainWindow):
             btn.clicked.connect(self.page_click)
 
         #campsite search functionality:
-        self.tableWidget.setHidden(True)
         self.pushButton_11.clicked.connect(self.campsite_search_submit)
-
+        #campsite search 2:
+        self.pushButton_29.clicked.connect(self.campsite_search_submit)
 
     def page_click(self):
         clicked_button = self.sender()
@@ -70,19 +75,22 @@ class Window(QMainWindow, Ui_MainWindow):
         #dictionary for page indexs
         page_map = {
             "campsite_search": 0,
-            "campsite_display": 11,
-            "campsite_create": 2,
-            "campsite_delete": 3,
-            "campsite_modify": 1,
+            "campsite_display": 12,
+            "campsite_create": 3,
+            "campsite_delete": 4,
+            "campsite_modify": 2,
 
-            "mountain_search": 7,
-            "mountain_display": 8,
-            "mountain_create": 10,
-            "mountain_delete": 6,
-            "mountain_modify": 5,
+            "mountain_search": 8,
+            "mountain_display": 9,
+            "mountain_create": 11,
+            "mountain_delete": 7,
+            "mountain_modify": 6,
 
-            "campsite_statistics": 9,
-            "mountain_statistics": 4,
+            "campsite_statistics": 10,
+            "mountain_statistics": 5,
+
+            #campsite_search_2 = 1,
+            #mountain_search_2 = 13,
             }
 
         for key, button in self.buttons.items(): #changing the page index according to the button clicked
@@ -90,18 +98,53 @@ class Window(QMainWindow, Ui_MainWindow):
                 self.stackedWidget.setCurrentIndex(page_map[key])
                 break
 
-    def campsite_search_submit(self):
-        #ok spacers don't have assigned names by Qt designer so I need to reference the spacer myself & assign it a variable name
 
-        self.verticalSpacer.changesize(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
-        self.tableWidget.setHidden(False) #shows the tableWidget (which will show the campsite)
-        campsite_name = self.lineEdit.text().strip() #grabs the campsite name from lineEdit
+    def campsite_search_submit(self): #search button functionality (for campsites)
+        clicked_button = self.sender()
+
+        if clicked_button == self.pushButton_11: #if you search on campsite_search
+            self.stackedWidget.setCurrentIndex(1) #sets index to search page w/ tableWidget to show campsite (campsite_search_2)
+            campsite_name = self.lineEdit.text().strip() #grabs the campsite name from lineEdit
+        elif clicked_button == self.pushButton_29: #if you search on campsite_search_2 (results are already shown)
+            campsite_name = self.lineEdit_15.text().strip()
+        else:
+            print("Button Error")
+            return
 
         if not campsite_name: #checks for blank
             print("No campsite name entered")
             return
 
-        #item_search(campsite_name, 'campsite')
+        data = CampingDatabase_SQLite.item_search(campsite_name, 'campsite') #you gotta be specific when referencing functions from imported code
+
+        if not data: #checks if data exists
+            print("No data found.")
+            return
+
+        self.populate_table(data, self.tableWidget)
+
+    def populate_table(self, results, table): #to populate different tables
+
+        if not results: #checking if results exist
+            print("No results found")
+            return
+
+        table.setRowCount(len(results)) #sets row count relative to the data
+        table.setColumnCount(1)
+        table.setHorizontalHeaderLabels(["Search Results"]) #sets header of table
+
+        for row, result in enumerate(results): #goes through each result and displays it
+            item = QTableWidgetItem(result)
+
+            item.setTextAlignment(Qt.AlignmentFlag.AlignTop)
+
+            table.setItem(row, 0, item)
+
+        table.resizeRowsToContents()
+        table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch) #resizes the contents of the table to the tableWidget
+
+
+
 
 
 app = QApplication([])

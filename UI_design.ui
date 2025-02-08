@@ -79,9 +79,9 @@ QScrollBar::sub-page:vertical {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-212</y>
                <width>117</width>
-               <height>777</height>
+               <height>768</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -155,7 +155,7 @@ QScrollBar::sub-page:vertical {
                         <string/>
                        </property>
                        <property name="pixmap">
-                        <pixmap>../Downloads/search.png</pixmap>
+                        <pixmap>../PycharmProjects/Database Test1/Database SQLite/Icons/search.png</pixmap>
                        </property>
                        <property name="scaledContents">
                         <bool>true</bool>
@@ -174,10 +174,10 @@ QScrollBar::sub-page:vertical {
                    <widget class="QPushButton" name="pushButton">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>91</width>
-                      <height>31</height>
+                      <width>101</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -238,10 +238,10 @@ QScrollBar::sub-page:vertical {
                    <widget class="QPushButton" name="pushButton_5">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>121</width>
-                      <height>31</height>
+                      <width>131</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -299,13 +299,13 @@ QScrollBar::sub-page:vertical {
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QPushButton" name="pushButton_2">
+                   <widget class="QPushButton" name="pushButton_32">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>121</width>
-                      <height>31</height>
+                      <width>131</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -366,10 +366,10 @@ QScrollBar::sub-page:vertical {
                    <widget class="QPushButton" name="pushButton_3">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>121</width>
-                      <height>31</height>
+                      <width>131</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -430,10 +430,10 @@ QScrollBar::sub-page:vertical {
                    <widget class="QPushButton" name="pushButton_4">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>121</width>
-                      <height>31</height>
+                      <width>131</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -506,10 +506,10 @@ QScrollBar::sub-page:vertical {
                    <widget class="QPushButton" name="pushButton_6">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>91</width>
-                      <height>31</height>
+                      <width>101</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -642,10 +642,10 @@ QScrollBar::sub-page:vertical {
                    <widget class="QPushButton" name="pushButton_8">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>131</width>
-                      <height>31</height>
+                      <width>141</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -706,10 +706,10 @@ QScrollBar::sub-page:vertical {
                    <widget class="QPushButton" name="pushButton_9">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>121</width>
-                      <height>31</height>
+                      <width>131</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -770,10 +770,10 @@ QScrollBar::sub-page:vertical {
                    <widget class="QPushButton" name="pushButton_10">
                     <property name="geometry">
                      <rect>
-                      <x>10</x>
+                      <x>0</x>
                       <y>3</y>
-                      <width>121</width>
-                      <height>31</height>
+                      <width>131</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -848,8 +848,8 @@ QScrollBar::sub-page:vertical {
                      <rect>
                       <x>10</x>
                       <y>3</y>
-                      <width>121</width>
-                      <height>31</height>
+                      <width>131</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -912,8 +912,8 @@ QScrollBar::sub-page:vertical {
                      <rect>
                       <x>10</x>
                       <y>3</y>
-                      <width>121</width>
-                      <height>31</height>
+                      <width>131</width>
+                      <height>41</height>
                      </rect>
                     </property>
                     <property name="text">
@@ -983,7 +983,7 @@ QScrollBar::sub-page:vertical {
                         <string/>
                        </property>
                        <property name="pixmap">
-                        <pixmap>../Downloads/power.png</pixmap>
+                        <pixmap>../PycharmProjects/Database Test1/Database SQLite/Icons/power.png</pixmap>
                        </property>
                        <property name="scaledContents">
                         <bool>true</bool>
@@ -1046,53 +1046,13 @@ QScrollBar::sub-page:vertical {
       </layout>
      </widget>
     </item>
-    <item row="0" column="2">
+    <item row="0" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>5</number>
+       <number>14</number>
       </property>
       <widget class="QWidget" name="campsite_search">
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="1" column="3">
-         <widget class="QPushButton" name="pushButton_11">
-          <property name="text">
-           <string>Search</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1" colspan="4">
-         <widget class="QTableWidget" name="tableWidget">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLineEdit" name="lineEdit">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="placeholderText">
-           <string>Enter Campsite Name</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
         <item row="0" column="2" colspan="2">
          <spacer name="verticalSpacer">
           <property name="orientation">
@@ -1109,13 +1069,36 @@ QScrollBar::sub-page:vertical {
           </property>
          </spacer>
         </item>
-        <item row="3" column="5">
-         <spacer name="horizontalSpacer_2">
+        <item row="2" column="0">
+         <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
           <property name="sizeType">
            <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="lineEdit">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>Enter Campsite Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <spacer name="horizontalSpacer_18">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -1138,10 +1121,20 @@ QScrollBar::sub-page:vertical {
           </property>
          </spacer>
         </item>
-        <item row="1" column="1">
-         <spacer name="horizontalSpacer_18">
+        <item row="1" column="3">
+         <widget class="QPushButton" name="pushButton_11">
+          <property name="text">
+           <string>Search</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -1156,13 +1149,150 @@ QScrollBar::sub-page:vertical {
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="campsite_search_2">
+       <layout class="QGridLayout" name="gridLayout_15">
+        <item row="3" column="0">
+         <spacer name="horizontalSpacer_59">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>69</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="5">
+         <spacer name="horizontalSpacer_53">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>69</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="5">
+         <widget class="QPushButton" name="pushButton_2">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QPushButton" name="pushButton_29">
+          <property name="text">
+           <string>Search</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <spacer name="verticalSpacer_22">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
           <property name="sizeType">
            <enum>QSizePolicy::Preferred</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>5</height>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <spacer name="horizontalSpacer_54">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>69</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="1" colspan="4">
+         <widget class="QTableWidget" name="tableWidget"/>
+        </item>
+        <item row="1" column="4">
+         <spacer name="horizontalSpacer_60">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>69</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="2">
+         <spacer name="verticalSpacer_21">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>21</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="lineEdit_15">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>Enter Campsite Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <spacer name="verticalSpacer_23">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -2824,14 +2954,56 @@ QScrollBar::sub-page:vertical {
       </widget>
       <widget class="QWidget" name="mountain_search">
        <layout class="QGridLayout" name="gridLayout_8">
-        <item row="3" column="1" colspan="4">
-         <widget class="QTableWidget" name="tableWidget_3">
-          <property name="enabled">
-           <bool>true</bool>
+        <item row="2" column="5">
+         <spacer name="horizontalSpacer_25">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="2">
+         <spacer name="verticalSpacer_11">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>244</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1">
+         <spacer name="horizontalSpacer_24">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>80</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="3">
+         <widget class="QPushButton" name="pushButton_22">
+          <property name="text">
+           <string>Search</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="2" column="0">
          <spacer name="horizontalSpacer_23">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -2860,29 +3032,6 @@ QScrollBar::sub-page:vertical {
           </property>
          </spacer>
         </item>
-        <item row="3" column="5">
-         <spacer name="horizontalSpacer_25">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="pushButton_22">
-          <property name="text">
-           <string>Search</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="2">
          <widget class="QLineEdit" name="lineEdit_8">
           <property name="text">
@@ -2893,44 +3042,15 @@ QScrollBar::sub-page:vertical {
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <spacer name="verticalSpacer_11">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>244</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="1" column="1">
-         <spacer name="horizontalSpacer_24">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>80</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="2" column="2" colspan="2">
+        <item row="2" column="2">
          <spacer name="verticalSpacer_17">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Preferred</enum>
-          </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>5</height>
+            <height>40</height>
            </size>
           </property>
          </spacer>
@@ -4411,6 +4531,137 @@ QScrollBar::sub-page:vertical {
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="mountain_search_2">
+       <layout class="QGridLayout" name="gridLayout_16">
+        <item row="0" column="2">
+         <spacer name="verticalSpacer_25">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>21</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="4">
+         <spacer name="horizontalSpacer_64">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>80</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="1" colspan="4">
+         <widget class="QTableWidget" name="tableWidget_3"/>
+        </item>
+        <item row="1" column="3">
+         <widget class="QPushButton" name="pushButton_31">
+          <property name="text">
+           <string>Search</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <spacer name="horizontalSpacer_61">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>80</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="lineEdit_16">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="placeholderText">
+           <string>Enter Mountain Name</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <spacer name="verticalSpacer_26">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="0">
+         <spacer name="horizontalSpacer_62">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>58</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="5">
+         <spacer name="horizontalSpacer_63">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>58</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="2">
+         <spacer name="verticalSpacer_24">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Preferred</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page"/>
      </widget>
     </item>
    </layout>
