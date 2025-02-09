@@ -146,13 +146,19 @@ def validate_type(type): #utility function for validating types
         return False
     return True
 
-def create_item(type): #inputs for mountain information
+#info = ['name, state, rating, description, URL']
+#info_m = ['name, state, rating, elevation, ascension, time, description, date, URL']
+
+def create_item(type, info): #inputs for mountain information
 
     if not validate_type(type): #checks the type
         return
+    if not info:
+        print("Missing Info.")
+        return
 
     while True:
-        name = input(f'Enter {type} name: ').strip()
+        name = info[0].strip()
         if name: #makes sure that the name isn't left blank
             break
         else:
@@ -161,10 +167,7 @@ def create_item(type): #inputs for mountain information
 
     while True:
         global US_States #grabs the set of states
-        state = input(f'Enter {type} state: ').strip().title()
-        #takes away extra spaces at the start and end of the string.
-        # Then capitalizes the first letter of each word (aka title format).
-        # This makes it match with the set of states more.
+        state = info[1].strip().title()
         try:
             if state in US_States: #checks if the state matches the set
                 break
@@ -175,7 +178,7 @@ def create_item(type): #inputs for mountain information
             continue
 
     while True:
-        rating = input(f'Enter {type} rating: ').strip()
+        rating = info[2]
         try: #making sure correct values are implemented
             rating = float(rating)
             if 0 <= rating <= 5:
@@ -188,7 +191,7 @@ def create_item(type): #inputs for mountain information
 
     if type == 'mountain':
         while True:
-            elevation = input('Enter mountain elevation: ').strip()
+            elevation = info[3].strip()
             try:
                 elevation = float(elevation)
                 if elevation >= 0: break
@@ -199,7 +202,7 @@ def create_item(type): #inputs for mountain information
                 continue
 
         while True:
-            ascension = input('Enter total feet ascended: ').strip()
+            ascension = info[4].strip()
             try:
                 ascension = float(ascension)
                 if ascension >= 0: break
@@ -210,7 +213,7 @@ def create_item(type): #inputs for mountain information
                 continue
 
         while True:
-            time = input('Enter time to complete (HH:MM): ').strip()
+            time = info[5].strip()
             try:
                 hours, minutes = map(int, time.split(':')) #parsing the data of date
                 if 0 <= hours <= 24 and 0 <= minutes <= 59: #checking hours and minutes individually
@@ -222,7 +225,10 @@ def create_item(type): #inputs for mountain information
                 continue
 
     while True:
-        description = input(f'Enter {type} description: ').strip()
+        if type == 'campsite':
+            description = info[3].strip()
+        else:
+            description = info[6].strip()
         if description:
             break
         else:
@@ -231,7 +237,7 @@ def create_item(type): #inputs for mountain information
 
     if type == 'mountain':
         while True:
-            date = input('Enter date of completion (YYYY-MM-DD): ').strip()
+            date = info[7].strip()
             try:
                 date = datetime.strptime(date, '%Y-%m-%d')
                 break
@@ -240,7 +246,10 @@ def create_item(type): #inputs for mountain information
                 continue
 
     while True:
-        url = input(f'Enter {type} URL: ').strip()
+        if type == 'campsite':
+            url = info[4].strip()
+        else:
+            url = info[8].strip()
         try:
             if url.startswith(('https://', 'http://')): #checks if url starts with valid address
                 break
@@ -338,37 +347,7 @@ def item_search(name, type):
         return []
 
 
-def sort_data(sort, type, order): #displays the data in order by sorted
-    if not validate_type(type): return
-
-    try:
-        if sort not in type_map[type]['fieldnames']:
-            raise ValueError(f'{sort.capitalize()} is not a valid sort type.\n')
-
-        order = order.upper()
-        if order not in ['ASC', 'DESC']:
-            raise ValueError(f"Invalid order: '{order}' is not correct.\n")
-
-        with conn:
-            c.execute(f"SELECT * from {type} ORDER BY {sort} {order}")
-            results = c.fetchall()
-            if results:
-                for row in results:
-                    if type == 'campsite':
-                        print(campsite_format(row[1], row[2], row[3], row[4], row[5]))
-                    else:
-                        print(mountain_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7],row[8], row[9]))
-            else:
-                print(f"No {type}s found to display.\n")
-
-    except ValueError as e:
-        print(e)
-    except sqlite3.Error as e:
-        print(f"Database Error: {e}\n")
-
-
-
-def replace_info(name, type, column): #updates info from a column
+def replace_info(name, type, column, new_value): #updates info from a column
     if not validate_type(type): return
 
     try:
@@ -376,14 +355,10 @@ def replace_info(name, type, column): #updates info from a column
         if column not in type_map[type]['fieldnames']:
             raise ValueError('Invalid attribute to replace by.\n')
 
-        new_value = input(f'Enter a new value for {column}: ').strip() #gets input for new value
+        new_value = new_value.strip() #gets input for new value
+
         if not new_value:
             raise ValueError(f'New value for {column} cannot be empty.\n')
-
-        confirm = input(f'Are you sure want to update {column} to {new_value}? (y/n): ').strip()
-        if confirm != 'y':
-            print('Update cancelled.\n')
-            return
 
         create_backup()
 
@@ -400,31 +375,49 @@ def replace_info(name, type, column): #updates info from a column
         print(f'Database Error: {e}\n')
 
 
-def sort_specific(column, value, type, order): #only displays specific data
+def sort_and_filter(column, value, order, type):
     if not validate_type(type): return
 
-    value = value.strip().lower()
-
-    if column not in type_map[type]['fieldnames']: #checking the column
+    if column not in type_map[type]['fieldnames']:  # checking the column
         raise ValueError('Invalid attribute to sort by.\n')
 
+    #converts the order value to SQL friendly
+    if order == 'Ascending':
+        order = "ASC"
+    elif order == 'Descending':
+        order = "DESC"
+
     try:
-        c.execute(f"SELECT * FROM {type} WHERE LOWER({column})=? ORDER BY {column} {order}", (value,)) #actually sorting
-        results = c.fetchall()
-        if results:
+        data = [] #creates list to store data
+
+        query = f"SELECT * FROM {type}" #starts with base query then depending on conditions (like value) more stuff is added to the query
+        params = [] #for applying filter
+
+        if value: #if value entered, filter
+            query += f" WHERE LOWER({column})=?"
+            if isinstance(value, str): #checks if value is a string
+                params.append(value.strip().lower())
+            else: #if value is a number
+                params.append(value)
+            #im checking this because if integer/floats are .strip() or .lower() then code breaks
+
+        query += f" ORDER BY {column} {order}" #sorts
+
+        with conn:
+            c.execute(query, params)
+            results = c.fetchall()
             for row in results:
                 if type == 'campsite':
-                    print(campsite_format(row[1], row[2], row[3], row[4], row[5]))
+                    data.append(campsite_format(row[1], row[2], row[3], row[4], row[5]))
                 else:
-                    print(mountain_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8],row[9]))
-        else:
-            print(f"No {type}s found to display.\n")
+                    data.append(mountain_format(row[1], row[2], row[3], row[4], row[5]))
+
+            return data
 
     except ValueError as e:
         print(e)
     except sqlite3.Error as e:
         print(f"Database Error: {e}\n")
-
 
 def statistics(type):
     if not validate_type(type): return
@@ -451,7 +444,7 @@ def statistics(type):
         print (f"Database Error: {e}")
 
 
-def menu(type): #menu for both mountains or campsites
+def menu(type): #terminal menu for both mountains or campsites
     #inputs for functions are checked before and in the function itself for errors.
     #the "type" is hardcoded into the main_menu() and also checked in the functions
     if not validate_type(type):
@@ -496,7 +489,7 @@ def menu(type): #menu for both mountains or campsites
                         continue
 
                 print('\n')
-                sort_data(sort, type, order)
+                #sort_data(sort, type, order)
 
             elif option == '2':
                 while True: #loop for checking if column is correct
@@ -519,7 +512,7 @@ def menu(type): #menu for both mountains or campsites
                         continue
 
                 print('\n')
-                sort_specific(column, value, type, order)
+                #sort_specific(column, value, type, order)
 
         elif x == '4': #add new item
             create_item(type)
@@ -549,7 +542,7 @@ def menu(type): #menu for both mountains or campsites
             print('Invalid input')
         print('\n')
 
-def main_menu():
+def main_menu(): #terminal main menu (some features don't work anymore in the terminal menus)
     while True:
         print('     Main Menu:\nEnter 1 for the campsite menu.\nEnter 2 for the mountain menu.\nEnter 0 to exit.')
         x = input('Enter here: ')

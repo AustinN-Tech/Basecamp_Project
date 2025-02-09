@@ -1,5 +1,4 @@
 from PyQt6.QtCore import Qt
-
 from UI_design import Ui_MainWindow
 import os
 from PyQt6 import QtWidgets
@@ -64,10 +63,57 @@ class Window(QMainWindow, Ui_MainWindow):
         for btn in self.buttons.values():
             btn.clicked.connect(self.page_click)
 
+
+        self.stackedWidget.currentChanged.connect(self.page_reset)  #resets the page if index changes
+
+
         #campsite search functionality:
         self.pushButton_11.clicked.connect(self.campsite_search_submit)
+        self.lineEdit.returnPressed.connect(self.campsite_search_submit)
         #campsite search 2:
         self.pushButton_29.clicked.connect(self.campsite_search_submit)
+        self.lineEdit_15.returnPressed.connect(self.campsite_search_submit) #when return is pressed, it searches
+
+
+        #campsite display functionality:
+        self.comboBox_5.clear()
+        self.comboBox_5.addItems(["Name", "State", "Rating"]) #adding items to column comboBox
+
+        self.pushButton_13.clicked.connect(self.display_data) #if apply button clicked
+        self.pushButton_20.clicked.connect(self.reset_clicked_display) #resets page if reset clicked
+
+
+        #campsite create functionality:
+        self.pushButton_14.clicked.connect(self.campsite_create_submit) #submit button
+
+        #comboBox:
+        self.comboBox.clear() #clears previous entries
+        self.comboBox.addItem("") #adds blank entry
+        self.comboBox.addItems(sorted(CampingDatabase_SQLite.US_States)) #adding states to comboBox
+
+        self.pushButton_17.clicked.connect(self.reset_clicked_create)
+        #slider:
+        self.horizontalSlider.setMinimum(1)
+        self.horizontalSlider.setMaximum(5)
+        self.horizontalSlider.setTickInterval(1)
+        self.horizontalSlider.setSingleStep(1)
+        self.horizontalSlider.valueChanged.connect(self.update_rating_label) #updates label next to slider
+
+        #Slider map: (used for correlating labels)
+        self.slider_label_map = {
+            self.horizontalSlider: self.label_31
+        }
+
+
+        #campsite delete functionality:
+        self.pushButton_18.clicked.connect(self.delete_clicked) #delete pressed
+        self.lineEdit_3.returnPressed.connect(self.delete_clicked) #when enter is pressed
+
+
+        #campsite modify functionality:
+        self.pushButton_21.clicked.connect(self.modify_clicked) #submit clicked
+
+
 
     def page_click(self):
         clicked_button = self.sender()
@@ -99,13 +145,15 @@ class Window(QMainWindow, Ui_MainWindow):
                 break
 
 
+    #displaying info functions:
     def campsite_search_submit(self): #search button functionality (for campsites)
         clicked_button = self.sender()
 
-        if clicked_button == self.pushButton_11: #if you search on campsite_search
+        #These if statements also account for "enter" being pressed in the lineEdits.
+        if clicked_button == self.pushButton_11 or clicked_button == self.lineEdit: #if you search on campsite_search
             self.stackedWidget.setCurrentIndex(1) #sets index to search page w/ tableWidget to show campsite (campsite_search_2)
             campsite_name = self.lineEdit.text().strip() #grabs the campsite name from lineEdit
-        elif clicked_button == self.pushButton_29: #if you search on campsite_search_2 (results are already shown)
+        elif clicked_button == self.pushButton_29 or clicked_button == self.lineEdit_15: #if you search on campsite_search_2 (results are already shown)
             campsite_name = self.lineEdit_15.text().strip()
         else:
             print("Button Error")
@@ -131,20 +179,138 @@ class Window(QMainWindow, Ui_MainWindow):
 
         table.setRowCount(len(results)) #sets row count relative to the data
         table.setColumnCount(1)
+
+        #setting the header to bold:
+        header_font = table.horizontalHeader().font()
+        header_font.setBold(True)
+        table.horizontalHeader().setFont(header_font)
+
         table.setHorizontalHeaderLabels(["Search Results"]) #sets header of table
 
         for row, result in enumerate(results): #goes through each result and displays it
             item = QTableWidgetItem(result)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable) #makes it so it isn't editable
 
-            item.setTextAlignment(Qt.AlignmentFlag.AlignTop)
+            item.setTextAlignment(Qt.AlignmentFlag.AlignTop) #aligns the results to the top
+            table.setWordWrap(True)
 
             table.setItem(row, 0, item)
 
         table.resizeRowsToContents()
         table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch) #resizes the contents of the table to the tableWidget
 
+    def display_data(self):
+        clicked_button = self.sender()
+
+        if clicked_button == self.pushButton_13: #so if its campsite display:
+            type = 'campsite'
+            column = self.comboBox_5.currentText().strip().lower()
+            order = self.comboBox_4.currentText().strip()
+            value = self.lineEdit_5.text().strip()
+        else: #TO DO
+            type = 'mountain'
+            pass
 
 
+        data = CampingDatabase_SQLite.sort_and_filter(column, value, order, type)
+        #DOESN'T DISPLAY "NO RESULTS" YET
+
+        self.populate_table(data, self.tableWidget_2) #populates display tableWidget
+
+    def reset_clicked_display(self): #reset for display
+        # clearing inputs:
+        self.comboBox_5.setCurrentIndex(0)
+        self.comboBox_4.setCurrentIndex(0)
+        self.lineEdit_5.clear()
+        # clearing tableWidget:
+        self.tableWidget_2.clear()
+        self.tableWidget_2.setRowCount(0)
+        self.tableWidget_2.setColumnCount(0)
+
+    #creating items functions:
+    def campsite_create_submit(self): #when submit is clicked on the create campsite page
+        #grabs the info from the page:
+        name = self.lineEdit_2.text().strip()
+        state = self.comboBox.currentText().strip()
+        rating = float(self.horizontalSlider.value())
+        description = self.textEdit.toPlainText()
+        URL = self.lineEdit_6.text().strip()
+
+        info = [name, state, rating, description, URL] #puts all info into 1 variable
+
+        CampingDatabase_SQLite.create_item('campsite',info)
+
+    def update_rating_label(self, value): #updates label next to slider
+        slider = self.sender()
+
+        if slider in self.slider_label_map:
+            label = self.slider_label_map[slider]
+            label.setText(f"{value:.2f}") #changes it to 2 decimal places
+
+    def reset_clicked_create(self): #this is for create reset
+        #clears inputs
+        self.lineEdit_2.clear()
+        self.comboBox.setCurrentIndex(0)
+        self.horizontalSlider.setValue(1)
+        self.textEdit.clear()
+        self.lineEdit_6.clear()
+
+
+    #deleting item functions:
+    def delete_clicked(self):
+        clicked_button = self.sender()
+
+        if clicked_button == self.pushButton_18 or clicked_button == self.lineEdit_3: #if campsite delete was clicked/enter pressed
+            type = 'campsite'
+            name = self.lineEdit_3.text().strip()
+        else: #TO DO
+            type = 'mountain'
+            pass
+
+        CampingDatabase_SQLite.remove_item(name, type)
+
+
+    #modifying item functions:
+    def modify_clicked(self):
+        clicked_button = self.sender()
+
+        if clicked_button == self.pushButton_21: #if campsite modify was clicked
+            type = 'campsite'
+            name = self.lineEdit_7.text().strip()
+            column = self.comboBox_2.currentText().strip().lower()
+            new_value = self.lineEdit_4.text().strip()
+        else: #TO DO
+            type = 'mountain'
+            pass
+
+        CampingDatabase_SQLite.replace_info(name, type, column, new_value)
+
+
+    #page reset functions:
+    def page_reset(self, index):
+        if index == 0: #campsite search 1
+            self.lineEdit.clear()
+        elif index == 1: #campsite search 2
+            self.lineEdit_15.clear()
+            #clearing tableWidget:
+            self.tableWidget.clear()
+            self.tableWidget.setRowCount(0)
+            self.tableWidget.setColumnCount(0)
+        elif index == 12: #campsite display
+            self.reset_clicked_display()
+        elif index == 3: #campsite create
+            self.reset_clicked_create()
+        elif index == 4: #campsite delete
+            self.lineEdit_3.clear()
+        elif index == 2: #campsite modify
+            self.lineEdit_7.clear()
+            self.comboBox.setCurrentIndex(0)
+            self.lineEdit_4.clear()
+        else:
+            pass
+
+
+#NOTE: filtering by rating might be broke check it out
 
 
 app = QApplication([])
