@@ -136,6 +136,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.pushButton_24.clicked.connect(self.display_data)  # if apply button clicked
         self.pushButton_23.clicked.connect(self.reset_clicked_display)  #if reset clicked
 
+
         #mountain create functionality:
         self.pushButton_27.clicked.connect(self.mountain_create_submit) #submit button
         self.pushButton_26.clicked.connect(self.reset_clicked_create) #reset button
@@ -152,6 +153,14 @@ class Window(QMainWindow, Ui_MainWindow):
         self.horizontalSlider_2.setSingleStep(1)
         self.horizontalSlider_2.valueChanged.connect(self.update_rating_label)  # updates label next to slider
 
+
+        #mountain delete functionality:
+        self.pushButton_28.clicked.connect(self.delete_clicked) #if delete clicked
+        self.lineEdit_14.returnPressed.connect(self.delete_clicked) #if return pressed
+
+
+        #mountain modify functionality:
+        self.pushButton_30.clicked.connect(self.modify_clicked) #submit button
 
 
 
@@ -373,8 +382,9 @@ class Window(QMainWindow, Ui_MainWindow):
         if clicked_button == self.pushButton_18 or clicked_button == self.lineEdit_3: #if campsite delete was clicked/enter pressed
             type = 'campsite'
             name = self.lineEdit_3.text().strip()
-        else: #TO DO
+        else: #if mountain delete was clicked/enter pressed
             type = 'mountain'
+            name = self.lineEdit_14.text().strip()
             pass
 
         CampingDatabase_SQLite.remove_item(name, type)
@@ -389,9 +399,11 @@ class Window(QMainWindow, Ui_MainWindow):
             name = self.lineEdit_7.text().strip()
             column = self.comboBox_2.currentText().strip().lower()
             new_value = self.lineEdit_4.text().strip()
-        else: #TO DO
+        else: #if mountain modify was clicked
             type = 'mountain'
-            pass
+            name = self.lineEdit_17.text().strip()
+            column = self.comboBox_11.currentText().strip().lower()
+            new_value = self.lineEdit_18.text().strip()
 
         CampingDatabase_SQLite.replace_info(name, type, column, new_value)
 
