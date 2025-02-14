@@ -157,107 +157,80 @@ def create_item(type, info): #inputs for mountain information
         print("Missing Info.")
         return
 
-    while True:
-        name = info[0].strip()
-        if name: #makes sure that the name isn't left blank
-            break
-        else:
-            print(f'Please enter a valid {type} name.')
-            continue
+    name = info[0].strip()
+    if not name: #makes sure that the name isn't left blank
+        print(f'Please enter a valid {type} name.')
+        return
 
-    while True:
-        global US_States #grabs the set of states
-        state = info[1].strip().title()
-        try:
-            if state in US_States: #checks if the state matches the set
-                break
-            else:
-                raise ValueError
-        except ValueError:
-            print('Please enter a valid state')
-            continue
+    global US_States #grabs the set of states
+    state = info[1].strip().title()
+    try:
+        if not (state in US_States): #checks if the state matches the set
+            raise ValueError
+    except ValueError:
+        print('Please enter a valid state')
+        return
 
-    while True:
-        rating = info[2]
-        try: #making sure correct values are implemented
-            rating = float(rating)
-            if 0 <= rating <= 5:
-                break
-            else:
-                raise ValueError
-        except ValueError:
-            print('Please a value from 0 to 5')
-            continue
+    rating = info[2]
+    try: #making sure correct values are implemented
+        rating = float(rating)
+        if not (0 <= rating <= 5):
+            raise ValueError
+    except ValueError:
+        print('Please a value from 0 to 5')
+        return
 
     if type == 'mountain':
-        while True:
-            elevation = info[3].strip()
-            try:
-                elevation = float(elevation)
-                if elevation >= 0: break
-                else:
-                    raise ValueError
-            except ValueError:
-                print('Please enter a valid elevation')
-                continue
-
-        while True:
-            ascension = info[4].strip()
-            try:
-                ascension = float(ascension)
-                if ascension >= 0: break
-                else:
-                    raise ValueError
-            except ValueError:
-                print('Please enter a valid input')
-                continue
-
-        while True:
-            time = info[5].strip()
-            try:
-                hours, minutes = map(int, time.split(':')) #parsing the data of date
-                if 0 <= hours <= 24 and 0 <= minutes <= 59: #checking hours and minutes individually
-                    break
-                else:
-                    raise ValueError
-            except ValueError:
-                print('Please enter a valid time')
-                continue
-
-    while True:
-        if type == 'campsite':
-            description = info[3].strip()
-        else:
-            description = info[6].strip()
-        if description:
-            break
-        else:
-            print('Please enter a valid description')
-            continue
-
-    if type == 'mountain':
-        while True:
-            date = info[7].strip()
-            try:
-                date = datetime.strptime(date, '%Y-%m-%d')
-                break
-            except ValueError:
-                print('Please enter a valid date')
-                continue
-
-    while True:
-        if type == 'campsite':
-            url = info[4].strip()
-        else:
-            url = info[8].strip()
+        elevation = info[3]
         try:
-            if url.startswith(('https://', 'http://')): #checks if url starts with valid address
-                break
-            else:
+            elevation = float(elevation)
+            if elevation < 0:
                 raise ValueError
         except ValueError:
-            print('Please input a valid URL')
-            continue
+            print('Please enter a valid elevation')
+            return
+
+        ascension = info[4]
+        try:
+            ascension = float(ascension)
+            if not ascension >= 0:
+                raise ValueError
+        except ValueError:
+            print('Please enter a valid input')
+            return
+
+        time = info[5].strip()
+        try:
+            hours, minutes = map(int, time.split(':')) #parsing the data of date
+            if not (0 <= hours < 24 and 0 <= minutes <= 59): #checking hours and minutes individually
+                raise ValueError
+        except ValueError:
+            print('Please enter a valid time')
+            return
+
+    if type == 'campsite':
+        description = info[3].strip()
+    else:
+        description = info[6].strip()
+    if not description: #checks if description exists
+        print('Please enter a valid description')
+        return
+
+    if type == 'mountain':
+        date = info[7].strip()
+        try:
+            date = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            print('Please enter a valid date')
+            return
+
+    if type == 'campsite':
+        url = info[4].strip()
+    else:
+        url = info[8].strip()
+    if not url or not url.startswith(('https://', 'http://')):#checks if url starts with valid address
+        print('Please input a valid URL')
+        return
 
     create_backup()
 
@@ -387,6 +360,9 @@ def sort_and_filter(column, value, order, type):
     elif order == 'Descending':
         order = "DESC"
 
+    if column == "time":
+        column = "time_completed" #the column in the database is named time_completed
+
     try:
         data = [] #creates list to store data
 
@@ -406,11 +382,15 @@ def sort_and_filter(column, value, order, type):
         with conn:
             c.execute(query, params)
             results = c.fetchall()
+
+            if not results: #returns data even if no results
+                return data
+
             for row in results:
                 if type == 'campsite':
                     data.append(campsite_format(row[1], row[2], row[3], row[4], row[5]))
                 else:
-                    data.append(mountain_format(row[1], row[2], row[3], row[4], row[5]))
+                    data.append(mountain_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
 
             return data
 
@@ -560,3 +540,4 @@ def main_menu(): #terminal main menu (some features don't work anymore in the te
             break
         else:
             print('Invalid input')
+
