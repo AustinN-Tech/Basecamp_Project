@@ -400,28 +400,42 @@ def sort_and_filter(column, value, order, type):
         print(f"Database Error: {e}\n")
 
 def statistics(type):
-    if not validate_type(type): return
-
-    state_total = 0
+    if not validate_type(type): return 0, 0, [] #returns empty values
 
     try:
-       c.execute(f"SELECT * from {type}")
+       c.execute(f"SELECT COUNT(*) from {type}")
        total = c.fetchone()[0]
 
        c.execute(f"SELECT state, COUNT(*) AS count FROM {type} GROUP BY state")
        state_counts = c.fetchall()
 
+       if type == 'mountain': #grabs averages of ascension and elevation if type is mountain
+           c.execute(f"SELECT AVG(ascension) from {type}")
+           average_ascension = c.fetchone()[0]
+           c.execute(f"SELECT AVG(elevation) from {type}")
+           average_elevation = c.fetchone()[0]
+       else: #still needs values for ascension and elevation even if its campsite, so just leaving it 0
+           average_ascension = 0
+           average_elevation = 0
+
        state_total = len(state_counts) #works cause "state_counts" is a tuple
 
        print(f'Total {type}s found:', total,'\nTotal states:', (state_total))
-       print(f'\n{type.capitalize()}s by state:')
 
+       formatted_text = []
        for state, count in state_counts:
-           print(f'{state}: {count}')
+           formatted_text.append(f'{state}: {count}')
 
-    # error handling:
+       return state_total, total, formatted_text, average_ascension, average_elevation
+
+
+       #error handling: returns empty values if error
     except sqlite3.Error as e:
         print (f"Database Error: {e}")
+        return 0, 0, []
+    except Exception as e:
+        print(f"Error: {e}")
+        return 0, 0, []
 
 
 def menu(type): #terminal menu for both mountains or campsites

@@ -17,7 +17,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         base_dir = os.getcwd() #gets the directory the code is running in
 
-        #setting the label icons' pixmaps
+        #setting the label icons' Pixmap
         self.label_3.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "menu-burger.png")))  #hamburger icon
 
         self.label_6.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "search.png"))) #campsite search icon
@@ -36,6 +36,8 @@ class Window(QMainWindow, Ui_MainWindow):
         self.label_38.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "mountains.png")))  #mountain stats icon
 
         self.label_40.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "power.png")))  #exit icon
+
+        #could make a function that takes the label and the name of the .png file to optimize the code a bit
 
         #dictionary for button names
         self.buttons = {
@@ -116,9 +118,7 @@ class Window(QMainWindow, Ui_MainWindow):
         #column comboBox:
         self.comboBox_2.clear()
         self.comboBox_2.addItem("") #adds blank entry
-        self.comboBox_2.addItems(CampingDatabase_SQLite.type_map['campsite']['fieldnames']) #adds proper columns
-
-        #Need to add a fresh dictionary because 'fieldnames' is lowercased
+        self.comboBox_2.addItems(["Name","State","Rating","Description", "URL"]) #adds proper columns
 
 
         #mountain search functionality:
@@ -162,13 +162,16 @@ class Window(QMainWindow, Ui_MainWindow):
         #mountain modify functionality:
         self.pushButton_30.clicked.connect(self.modify_clicked) #submit button
 
+        #statistics functionality:
+        self.stackedWidget.currentChanged.connect(self.statistics) #checks the index if it's the right page and if so it runs the stats
+
 
 
 
     def page_click(self):
         clicked_button = self.sender()
 
-        #dictionary for page indexs
+        #dictionary for page indexes
         page_map = {
             "campsite_search": 0,
             "campsite_display": 12,
@@ -226,12 +229,14 @@ class Window(QMainWindow, Ui_MainWindow):
             print(f"No {type} name entered")
             return
 
-        data = CampingDatabase_SQLite.item_search(name, type) #you gotta be specific when referencing functions from imported code
+        data = CampingDatabase_SQLite.item_search(name, type) #you have to be specific when referencing functions from imported code
 
-        self.populate_table(data, self.table)
+        header_title = "Search Results"
+
+        self.populate_table(data, self.table, header_title)
 
 
-    def populate_table(self, results, table): #to populate different tables
+    def populate_table(self, results, table, header_title): #to populate different tables
 
         table.setColumnCount(1)
 
@@ -270,7 +275,7 @@ class Window(QMainWindow, Ui_MainWindow):
         header_font = table.horizontalHeader().font()
         header_font.setBold(True)
         table.horizontalHeader().setFont(header_font)
-        table.setHorizontalHeaderLabels(["Search Results"]) #sets header of table
+        table.setHorizontalHeaderLabels([header_title]) #sets header of table
 
         table.setRowCount(len(results))  # sets row count relative to the data
         for row, result in enumerate(results): #goes through each result and displays it
@@ -307,9 +312,10 @@ class Window(QMainWindow, Ui_MainWindow):
 
 
         data = CampingDatabase_SQLite.sort_and_filter(column, value, order, type)
-        #DOESN'T DISPLAY "NO RESULTS" YET
 
-        self.populate_table(data, table) #populates display tableWidget
+        header_title = "Search Results"
+
+        self.populate_table(data, table, header_title) #populates display tableWidget
 
     def reset_clicked_display(self): #reset for display
         clicked_button = self.sender()
@@ -385,7 +391,6 @@ class Window(QMainWindow, Ui_MainWindow):
         else: #if mountain delete was clicked/enter pressed
             type = 'mountain'
             name = self.lineEdit_14.text().strip()
-            pass
 
         CampingDatabase_SQLite.remove_item(name, type)
 
@@ -406,6 +411,37 @@ class Window(QMainWindow, Ui_MainWindow):
             new_value = self.lineEdit_18.text().strip()
 
         CampingDatabase_SQLite.replace_info(name, type, column, new_value)
+
+
+    #stat functions:
+    def statistics(self, index):
+        if index == 10:
+          type = 'campsite'
+          table = self.tableWidget_5
+        elif index == 5:
+          type = 'mountain'
+          table = self.tableWidget_6
+        else:
+            return
+
+        state_total, total, formatted_text, average_ascension, average_elevation = CampingDatabase_SQLite.statistics(type)
+
+        header_title = "Campsites by State"
+
+        if type == 'campsite':
+            #updating info:
+            self.label_60.setText(str(total)) #label displaying camp total
+            self.label_61.setText(str(state_total)) #label displaying total states
+            self.populate_table(formatted_text, table, header_title) #adds data to table
+        elif type == 'mountain':
+            #updating info
+            self.label_64.setText(str(total))
+            self.label_68.setText(str(state_total))
+            self.label_72.setText(str(average_ascension))
+            self.label_70.setText(str(average_elevation))
+            #need to add elevation average
+            self.populate_table(formatted_text, table, header_title)
+
 
 
     #page reset function:
@@ -441,6 +477,12 @@ class Window(QMainWindow, Ui_MainWindow):
             self.clear_display_mountain()
         elif index == 11: #mountain create
             self.clear_create_mountain()
+        elif index == 7: #mountain delete
+            self.lineEdit_14.clear()
+        elif index == 6: #mountain modify
+            self.lineEdit_17.clear()
+            self.comboBox_11.setCurrentIndex(0)
+            self.lineEdit_18.clear()
         else:
             pass
 
@@ -479,9 +521,6 @@ class Window(QMainWindow, Ui_MainWindow):
         self.textEdit_2.clear()
         self.dateEdit.setDate(QDate(2000, 1, 1))  # resets to default
         self.lineEdit_10.clear()
-
-
-#NOTE: filtering by rating might be broke check it out
 
 
 app = QApplication([])
