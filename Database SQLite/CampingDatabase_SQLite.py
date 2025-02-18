@@ -1,6 +1,7 @@
 import shutil
 import sqlite3
 from datetime import datetime
+from PyQt6.QtWidgets import QMessageBox
 
 conn = sqlite3.connect('ProjectDatabase.db')
 c = conn.cursor()
@@ -33,6 +34,15 @@ c = conn.cursor()
 #             )
 #         """)
 
+def error_popup(error_type, error): #popup for errors.
+    print(f"{error_type}: {error}")
+    pop = QMessageBox()
+    pop.setWindowTitle("Error")
+    pop.setText(f"{error_type}: {error}")
+    pop.setIcon(QMessageBox.Icon.Critical)
+    pop.exec()
+
+
 def insert_campsite(name, state, rating, description, url):
     try:
         with conn: #commits the function in the with statement
@@ -41,7 +51,9 @@ def insert_campsite(name, state, rating, description, url):
                       {'name': name, 'state': state, 'rating': rating, 'description': description, 'url': url})
     #error handling
     except sqlite3.IntegrityError as e:
-        print(f'Integrity Error: {e}')
+        error_type = "Integrity Error"
+        error = f"{e}"
+        error_popup(error_type, error)
     except sqlite3.Error as e:
         print(f'Database Error: {e}')
 
@@ -53,7 +65,9 @@ def insert_mountain(name, state, rating, elevation, ascension, time_completed, d
                       {'name': name, 'state': state, 'rating': rating, 'elevation': elevation, 'ascension': ascension, 'time_completed': time_completed, 'description': description,'date':date, 'url': url})
     #error handling
     except sqlite3.IntegrityError as e:
-        print(f'Integrity Error: {e}')
+        error_type = "Integrity Error"
+        error = f"{e}"
+        error_popup(error_type, error)
     except sqlite3.Error as e:
         print(f'Database Error: {e}')
 
@@ -159,7 +173,9 @@ def create_item(type, info): #inputs for mountain information
 
     name = info[0].strip()
     if not name: #makes sure that the name isn't left blank
-        print(f'Please enter a valid {type} name.')
+        error_type = "Invalid Input"
+        error = f"{type.title()} name cannot be empty."
+        error_popup(error_type, error)
         return
 
     global US_States #grabs the set of states
@@ -168,16 +184,20 @@ def create_item(type, info): #inputs for mountain information
         if not (state in US_States): #checks if the state matches the set
             raise ValueError
     except ValueError:
-        print('Please enter a valid state')
+        error_type = "Invalid Input"
+        error = "State cannot be empty."
+        error_popup(error_type, error)
         return
 
     rating = info[2]
     try: #making sure correct values are implemented
         rating = float(rating)
-        if not (0 <= rating <= 5):
+        if not (1 <= rating <= 5):
             raise ValueError
     except ValueError:
-        print('Please a value from 0 to 5')
+        error_type = "Invalid Input"
+        error = "Enter a value from 1 to 5."
+        error_popup(error_type, error)
         return
 
     if type == 'mountain':
@@ -187,7 +207,9 @@ def create_item(type, info): #inputs for mountain information
             if elevation < 0:
                 raise ValueError
         except ValueError:
-            print('Please enter a valid elevation')
+            error_type = "Invalid Input"
+            error = "Elevation must be a number."
+            error_popup(error_type, error)
             return
 
         ascension = info[4]
@@ -196,7 +218,9 @@ def create_item(type, info): #inputs for mountain information
             if not ascension >= 0:
                 raise ValueError
         except ValueError:
-            print('Please enter a valid input')
+            error_type = "Invalid Input"
+            error = "Ascension must be a number."
+            error_popup(error_type, error)
             return
 
         time = info[5].strip()
@@ -205,7 +229,9 @@ def create_item(type, info): #inputs for mountain information
             if not (0 <= hours < 24 and 0 <= minutes <= 59): #checking hours and minutes individually
                 raise ValueError
         except ValueError:
-            print('Please enter a valid time')
+            error_type = "Invalid Input"
+            error = "Please enter a valid time."
+            error_popup(error_type, error)
             return
 
     if type == 'campsite':
@@ -213,7 +239,9 @@ def create_item(type, info): #inputs for mountain information
     else:
         description = info[6].strip()
     if not description: #checks if description exists
-        print('Please enter a valid description')
+        error_type = "Invalid Input"
+        error = "Description cannot be empty."
+        error_popup(error_type, error)
         return
 
     if type == 'mountain':
@@ -221,7 +249,9 @@ def create_item(type, info): #inputs for mountain information
         try:
             date = datetime.strptime(date, '%Y-%m-%d')
         except ValueError:
-            print('Please enter a valid date')
+            error_type = "Invalid Input"
+            error = "Please enter a valid date."
+            error_popup(error_type, error)
             return
 
     if type == 'campsite':
@@ -229,7 +259,9 @@ def create_item(type, info): #inputs for mountain information
     else:
         url = info[8].strip()
     if not url or not url.startswith(('https://', 'http://')):#checks if url starts with valid address
-        print('Please input a valid URL')
+        error_type = "Invalid Input"
+        error = "URL must begin with 'https://' or 'http://'."
+        error_popup(error_type, error)
         return
 
     create_backup()
@@ -247,31 +279,15 @@ def create_item(type, info): #inputs for mountain information
 
     print(f'{type.capitalize()}: {name} is saved\n')
 
-def all_items(type): #displays all items
-    try:
-        if not validate_type(type): return
-
-        c.execute(f"SELECT * from {type}")
-        rows = c.fetchall()
-
-        for row in rows:
-            if type == 'campsite':
-                formatted_output = campsite_format(row[1],row[2],row[3],row[4],row[5])
-            else:
-                formatted_output = mountain_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
-            print(formatted_output)
-
-    #error handling:
-    except sqlite3.Error as e:
-        print(f"Database Error: {e}")
-
 
 def remove_item(name, type): #removes item from database
     if not validate_type(type): return #checking type
 
     name = name.strip()
     if not name:
-        print('Name cannot be empty\n')
+        error_type = "Invalid Input"
+        error = "Name cannot be empty."
+        error_popup(error_type, error)
         return
 
     create_backup()
@@ -293,7 +309,9 @@ def item_search(name, type):
 
     name = name.strip()
     if not name:
-        print('Name cannot be empty\n')
+        error_type = "Invalid Input"
+        error = "Name cannot be empty."
+        error_popup(error_type, error)
         return
 
     try:
@@ -328,10 +346,22 @@ def replace_info(name, type, column, new_value): #updates info from a column
         if column not in type_map[type]['fieldnames']:
             raise ValueError('Invalid attribute to replace by.\n')
 
+        if not name: #checks for empty name
+            error_type = "Invalid Input"
+            error = "Name cannot be empty."
+            error_popup(error_type, error)
+            return
+
+        if column == "time":
+            column = "time_completed"
+
         new_value = new_value.strip() #gets input for new value
 
-        if not new_value:
-            raise ValueError(f'New value for {column} cannot be empty.\n')
+        if not new_value: #checks for empty new_value
+            error_type = "Invalid Input"
+            error = "New value cannot be empty."
+            error_popup(error_type, error)
+            return
 
         create_backup()
 
@@ -436,122 +466,3 @@ def statistics(type):
     except Exception as e:
         print(f"Error: {e}")
         return 0, 0, []
-
-
-def menu(type): #terminal menu for both mountains or campsites
-    #inputs for functions are checked before and in the function itself for errors.
-    #the "type" is hardcoded into the main_menu() and also checked in the functions
-    if not validate_type(type):
-        return
-
-    while True:
-        print(f'     {type.capitalize()} Menu\n\nEnter 1 for all {type}s.\nEnter 2 to search for a specific {type}.\nEnter 3 for sorting {type}s.\nEnter 4 to add a new {type}.\nEnter 5 to delete a {type}.\nEnter 6 to modify a {type}.\nEnter 7 for statistics.\nEnter 0 to exit to main menu.')
-        x = input('Enter here: ')
-        print('\n')
-
-        if x == '1': #display all items
-            all_items(type)
-        elif x == '2': #search for a specific item
-            name = input('Search: ')
-            print('\n')
-            item_search(name, type)
-        elif x == '3': #sort items
-            print(f' Sort Options:\n1. Sort all {type}s\n2. Sort specific {type}s\n')
-            while True: #loop for checking sort options
-                option = input('Enter here: ')
-                if option in ['1','2']: break
-                else:
-                    print('Invalid option')
-                    continue
-
-            if option == '1':
-                while True: #loop for checking if sort attribute is correct
-                    sort = input('Enter option to sort by: ')
-                    if sort not in type_map[type]['fieldnames']:
-                        print('Invalid attribute to sort by.')
-                        continue
-                    else:
-                        break
-
-                while True: #order displayed
-                    order = input('Enter sort order (asc/desc): ').strip().upper()
-
-                    if order in ['ASC', 'DESC']:
-                        break
-                    else:
-                        print('Invalid option.')
-                        continue
-
-                print('\n')
-                #sort_data(sort, type, order)
-
-            elif option == '2':
-                while True: #loop for checking if column is correct
-                    column = input('Enter column to filter by: ')
-                    if column not in type_map[type]['fieldnames']:
-                        print('Invalid attribute to filter by.')
-                        continue
-                    else:
-                        break
-
-                value = input(f'Enter value for {column}: ')
-
-                while True: #order displayed
-                    order = input('Enter sort order (asc/desc): ').strip().upper()
-
-                    if order in ['ASC','DESC']:
-                        break
-                    else:
-                        print('Invalid option.')
-                        continue
-
-                print('\n')
-                #sort_specific(column, value, type, order)
-
-        elif x == '4': #add new item
-            create_item(type)
-        elif x == '5': #delete old item
-            name = input(f'Enter the name of {type} to delete: ')
-            print('\n')
-            remove_item(name, type)
-        elif x == '6': #modify column on an item
-            name = input('Search: ')
-            while True: #checking the column input
-                column = input('Enter column to modify: ')
-                if column in type_map[type]['fieldnames']:
-                    break
-                else:
-                    print('Invalid attribute to modify by.')
-                    continue
-
-            print('\n')
-            replace_info(name, type, column)
-        elif x == '7': #statistics of data
-            statistics(type)
-        elif x == '0': #ending code
-            print(f'Exiting {type.capitalize()} Menu...')
-            break
-
-        else:
-            print('Invalid input')
-        print('\n')
-
-def main_menu(): #terminal main menu (some features don't work anymore in the terminal menus)
-    while True:
-        print('     Main Menu:\nEnter 1 for the campsite menu.\nEnter 2 for the mountain menu.\nEnter 0 to exit.')
-        x = input('Enter here: ')
-        if x == '1': #campsite menu
-            print('\n')
-            menu('campsite')
-            print('\n')
-        elif x == '2': #mountain menu
-            print('\n')
-            menu('mountain')
-            print('\n')
-        elif x == '0': #ending code
-            print('\nExiting...')
-            conn.close() #closes the connection to the database
-            break
-        else:
-            print('Invalid input')
-

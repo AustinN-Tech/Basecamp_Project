@@ -4,7 +4,7 @@ import os
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QTime, QDate
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy, QTableWidgetItem, QHeaderView, QTableWidget
+from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy, QTableWidgetItem, QMessageBox
 import CampingDatabase_SQLite
 
 
@@ -161,6 +161,9 @@ class Window(QMainWindow, Ui_MainWindow):
 
         #mountain modify functionality:
         self.pushButton_30.clicked.connect(self.modify_clicked) #submit button
+        self.comboBox_11.clear()
+        self.comboBox_11.addItem("")  # adds blank entry
+        self.comboBox_11.addItems(["Name", "State", "Rating", "Elevation", "Ascension", "Time Taken", "Description", "Date", "URL"])  # adds proper columns
 
         #statistics functionality:
         self.stackedWidget.currentChanged.connect(self.statistics) #checks the index if it's the right page and if so it runs the stats
@@ -205,18 +208,25 @@ class Window(QMainWindow, Ui_MainWindow):
         #These if statements also account for "enter" being pressed in the lineEdits.
         if clicked_button == self.pushButton_11 or clicked_button == self.lineEdit: #if you search on campsite_search
             type = 'campsite'
-            self.stackedWidget.setCurrentIndex(1) #sets index to search page w/ tableWidget to show campsite (campsite_search_2)
             name = self.lineEdit.text().strip() #grabs the campsite name from lineEdit
             self.table = self.tableWidget
+
+            data = CampingDatabase_SQLite.item_search(name, type)
+            if data: #if data is empty, doesn't change index
+                self.stackedWidget.setCurrentIndex(1) #sets index to search w/ tableWidget to show campsite (campsite_search_2)
+
         elif clicked_button == self.pushButton_29 or clicked_button == self.lineEdit_15: #if you search on campsite_search_2 (results are already shown)
             type = 'campsite'
             name = self.lineEdit_15.text().strip()
             self.table = self.tableWidget
         elif clicked_button == self.pushButton_22 or clicked_button == self.lineEdit_8: #if you search on mountain_search
             type = 'mountain'
-            self.stackedWidget.setCurrentIndex(13)
             name = self.lineEdit_8.text().strip()
             self.table = self.tableWidget_3
+
+            data = CampingDatabase_SQLite.item_search(name, type)
+            if data:  # if data is empty, doesn't change index
+                self.stackedWidget.setCurrentIndex(13)
         elif clicked_button == self.pushButton_31 or clicked_button == self.lineEdit_16:
             type = 'mountain'
             name = self.lineEdit_16.text().strip()
@@ -234,6 +244,7 @@ class Window(QMainWindow, Ui_MainWindow):
         header_title = "Search Results"
 
         self.populate_table(data, self.table, header_title)
+        if not data: self.no_results() #if data empty, runs no results popup
 
 
     def populate_table(self, results, table, header_title): #to populate different tables
@@ -241,27 +252,11 @@ class Window(QMainWindow, Ui_MainWindow):
         table.setColumnCount(1)
 
         if not results: #if there is no results
-            #the whole "No Results" isn't great right now. will require reworking.
             print("No results found") #for extra logging
 
-            table.setRowCount(1)
             #hides the indexes:
             table.verticalHeader().setVisible(False)
             table.horizontalHeader().setVisible(False)
-
-            #creates "No Results" item and sets it to bold
-            item = QTableWidgetItem("No Results")
-            font = item.font()
-            font.setBold(True)
-            item.setFont(font)
-
-            item.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable) #makes table not editable
-            item.setTextAlignment(Qt.AlignmentFlag.AlignCenter) #centers
-            table.setItem(0, 0, item)
-
-
-            table.viewport().update() #updates the UI
-            table.setRowHeight(0, int(table.viewport().height())) #sets height of "No Results" to table
 
             #Resizes table:
             table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
@@ -316,6 +311,14 @@ class Window(QMainWindow, Ui_MainWindow):
         header_title = "Search Results"
 
         self.populate_table(data, table, header_title) #populates display tableWidget
+        if not data: self.no_results() #if data is empty, runs no results popup
+
+    def no_results(self): #no results pop-up
+        pop = QMessageBox(self)
+        pop.setText("No results found")
+        pop.setWindowTitle("No Results")
+        pop.setIcon(QMessageBox.Icon.Information)
+        pop.exec()
 
     def reset_clicked_display(self): #reset for display
         clicked_button = self.sender()
@@ -343,16 +346,8 @@ class Window(QMainWindow, Ui_MainWindow):
         name = self.lineEdit_11.text().strip()
         state = self.comboBox_3.currentText().strip()
         rating = float(self.horizontalSlider_2.value())
-        try:
-            elevation = float(self.lineEdit_12.text().strip())
-        except ValueError: #makes sure elevation is a number
-            print("Invalid Input: Elevation must be a number")
-            return
-        try: #makes sure ascension is a number
-            ascension = float(self.lineEdit_13.text().strip())
-        except ValueError:
-            print("Invalid Input: Ascension must be a number")
-            return
+        elevation = self.lineEdit_12.text().strip()
+        ascension = self.lineEdit_13.text().strip()
         time = self.timeEdit.time().toString("HH:mm")
         description = self.textEdit_2.toPlainText()
         date = self.dateEdit.date().toString("yyyy-MM-dd")
@@ -392,8 +387,27 @@ class Window(QMainWindow, Ui_MainWindow):
             type = 'mountain'
             name = self.lineEdit_14.text().strip()
 
-        CampingDatabase_SQLite.remove_item(name, type)
+        delete = self.delete_confirm(type, name)
+        if delete:
+            CampingDatabase_SQLite.remove_item(name, type)
+        else:
+            return
 
+    def delete_confirm(self, type, name): #confirm delete pop-up
+        #setting visuals:
+        pop = QMessageBox(self)
+        pop.setText(f"Are you sure you want to delete {type}: {name}?")
+        pop.setWindowTitle("Confirm Delete")
+        pop.setIcon(QMessageBox.Icon.Warning)
+
+        pop.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel) #sets the buttons
+
+        clicked_button = pop.exec() #checks which button was clicked
+
+        if clicked_button == QMessageBox.StandardButton.Yes: #if yes selected, delete continues
+            return True
+        else: #if not then delete stops.
+            return False
 
     #modifying item functions:
     def modify_clicked(self):
@@ -408,6 +422,8 @@ class Window(QMainWindow, Ui_MainWindow):
             type = 'mountain'
             name = self.lineEdit_17.text().strip()
             column = self.comboBox_11.currentText().strip().lower()
+            if column == "time taken":
+                column = "time" #replace_info function only takes time
             new_value = self.lineEdit_18.text().strip()
 
         CampingDatabase_SQLite.replace_info(name, type, column, new_value)
