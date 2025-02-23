@@ -14,7 +14,9 @@ c = conn.cursor()
 #             state TEXT NOT NULL COLLATE NOCASE,
 #             rating REAL NOT NULL CHECK (rating BETWEEN 0 AND 5),
 #             description TEXT,
-#             url TEXT
+#             url TEXT,
+#             longitude REAL,
+#             latitude REAL
 #             )
 #         """)
 
@@ -30,7 +32,9 @@ c = conn.cursor()
 #             time_completed TEXT NOT NULL CHECK (time_completed LIKE '__:__'),
 #             description TEXT,
 #             date TEXT NOT NULL CHECK (date LIKE '____-__-__'),
-#             url TEXT
+#             url TEXT,
+#             longitude REAL,
+#             latitude REAL
 #             )
 #         """)
 
@@ -42,13 +46,30 @@ def error_popup(error_type, error): #popup for errors.
     pop.setIcon(QMessageBox.Icon.Critical)
     pop.exec()
 
+def no_delete(type, name): #popup for if delete doesn't work
+    print(f"No {type} has been found with name '{name}'")
+    pop = QMessageBox()
+    pop.setWindowTitle("Deletion Unsuccessful")
+    pop.setText(f"No {type} has been found with name: '{name}'.")
+    pop.setIcon(QMessageBox.Icon.Warning)
+    pop.exec()
 
-def insert_campsite(name, state, rating, description, url):
+def no_modify(type, name):
+    print(f"No {type} found with name: {name}.")
+    pop = QMessageBox()
+    pop.setWindowTitle("Edit Unsuccessful")
+    pop.setText(f"No {type} found with name: {name}.")
+    pop.setIcon(QMessageBox.Icon.Warning)
+    pop.exec()
+
+
+
+def insert_campsite(name, state, rating, description, url, longitude, latitude):
     try:
         with conn: #commits the function in the with statement
-            c.execute("""INSERT INTO campsite (name, state, rating, description, url) 
-            VALUES (:name, :state, :rating, :description, :url)""",
-                      {'name': name, 'state': state, 'rating': rating, 'description': description, 'url': url})
+            c.execute("""INSERT INTO campsite (name, state, rating, description, url, longitude, latitude) 
+            VALUES (:name, :state, :rating, :description, :url, :longitude, :latitude)""",
+                      {'name': name, 'state': state, 'rating': rating, 'description': description, 'url': url, 'longitude': longitude, 'latitude': latitude})
     #error handling
     except sqlite3.IntegrityError as e:
         error_type = "Integrity Error"
@@ -57,12 +78,12 @@ def insert_campsite(name, state, rating, description, url):
     except sqlite3.Error as e:
         print(f'Database Error: {e}')
 
-def insert_mountain(name, state, rating, elevation, ascension, time_completed, description, date, url):
+def insert_mountain(name, state, rating, elevation, ascension, time_completed, description, date, url, longitude, latitude):
     try:
         with conn:
-            c.execute("""INSERT INTO mountain (name, state, rating, elevation, ascension, time_completed, description, date, url)
-            VALUES (:name, :state, :rating, :elevation, :ascension, :time_completed, :description, :date, :url)""",
-                      {'name': name, 'state': state, 'rating': rating, 'elevation': elevation, 'ascension': ascension, 'time_completed': time_completed, 'description': description,'date':date, 'url': url})
+            c.execute("""INSERT INTO mountain (name, state, rating, elevation, ascension, time_completed, description, date, url, longitude, latitude)
+            VALUES (:name, :state, :rating, :elevation, :ascension, :time_completed, :description, :date, :url, :longitude, :latitude)""",
+                      {'name': name, 'state': state, 'rating': rating, 'elevation': elevation, 'ascension': ascension, 'time_completed': time_completed, 'description': description,'date':date, 'url': url, 'longitude': longitude, 'latitude': latitude})
     #error handling
     except sqlite3.IntegrityError as e:
         error_type = "Integrity Error"
@@ -70,63 +91,29 @@ def insert_mountain(name, state, rating, elevation, ascension, time_completed, d
         error_popup(error_type, error)
     except sqlite3.Error as e:
         print(f'Database Error: {e}')
-
-
-
-
-class Campsite:
-
-    def __init__(self, name, state, rating, description, url):
-        self.name = name
-        self.state = state
-        self.rating = rating
-        self.description = description
-        self.url = url
-
-
-    def stats(self):
-        return '{}:\nState - {}\nRating - {}\nDescription:\n  {}\nURL - {}'.format(self.name, self.state, self.rating, self.description, self.url)
-
-
-class Mountain:
-
-    def __init__(self, name, state, rating, elevation, ascension, time, description, date, url):
-        self.name = name
-        self.state = state
-        self.rating = rating
-        self.elevation = elevation
-        self.ascension = ascension
-        self.time = time
-        self.description = description
-        self.date = date
-        self.url = url
-
-
-    def stats(self):
-        return '{}:\nState - {}\nRating - {}\nElevation - {}\nTotal elevation gain - {}\nTime taken - {}\nDescription: {}\nDate completed: {}\nURL - {}'.format(self.name, self.state, self.rating, self.elevation, self.ascension, self.time, self.description, self.date, self.url)
 
 type_map= {
     'campsite': {
-        'fieldnames':['name','state','rating','description','url'],
+        'fieldnames':['name','state','rating','description','url', 'longitude', 'latitude'],
         'numeric_fields':['rating'],
         'format':"Name: {name}\nState: {state}\nRating: {rating}\nDescription: {description}\nURL: {url}\n"
     },
     'mountain': {
-        'fieldnames':['name','state','rating','elevation','ascension','time','description','date','url'],
+        'fieldnames':['name','state','rating','elevation','ascension','time','description','date','url', 'longitude', 'latitude'],
         'numeric_fields':['rating','elevation','ascension'],
         'format':"Name: {name}\nState: {state}\nRating: {rating}\nElevation: {elevation}\nTotal Feet Ascended: {ascension}\nTime to Complete: {time}\nDescription: {description}\nDate Completed: {date}\nURL: {url}\n"
     }
 }
 
-def campsite_format(name, state, rating, description, url):
+def campsite_format(name, state, rating, description, url, longitude, latitude):
     formatted_output = (
-        f"Name: {name}\nState: {state}\nRating: {rating}\nDescription: {description}\nURL: {url}\n"
+        f"Name: {name}\nState: {state}\nRating: {rating}\nDescription: {description}\nURL: {url}\nCoordinates: {longitude},{latitude}\n"
     )
     return formatted_output
 
-def mountain_format(name, state, rating, elevation, ascension, time_completed, description, date, url):
+def mountain_format(name, state, rating, elevation, ascension, time_completed, description, date, url, longitude, latitude):
     formatted_output = (
-        f"Name: {name}\nState: {state}\nRating: {rating}\nElevation: {elevation}\nTotal Feet Ascended: {ascension}\nTime to complete: {time_completed}\nDescription: {description}\nDate Completed: {date}\nURL: {url}\n"
+        f"Name: {name}\nState: {state}\nRating: {rating}\nElevation: {elevation}\nTotal Feet Ascended: {ascension}\nTime to complete: {time_completed}\nDescription: {description}\nDate Completed: {date}\nURL: {url}\nCoordinates: {longitude},{latitude}\n"
     )
     return formatted_output
 
@@ -160,8 +147,8 @@ def validate_type(type): #utility function for validating types
         return False
     return True
 
-#info = ['name, state, rating, description, URL']
-#info_m = ['name, state, rating, elevation, ascension, time, description, date, URL']
+#info = ['name, state, rating, description, URL, longitude, latitude']
+#info_m = ['name, state, rating, elevation, ascension, time, description, date, URL, longitude, latitude']
 
 def create_item(type, info): #inputs for mountain information
 
@@ -264,6 +251,30 @@ def create_item(type, info): #inputs for mountain information
         error_popup(error_type, error)
         return
 
+    if type == 'campsite':
+        longitude = info[5].strip()
+    else:
+        longitude = info[9].strip()
+    try:
+        longitude = float(longitude)
+    except ValueError:
+        error_type = "Invalid Input"
+        error = "Longitude must be a number."
+        error_popup(error_type, error)
+        return
+
+    if type == 'campsite':
+        latitude = info[6].strip()
+    else:
+        latitude = info[10].strip()
+    try:
+        latitude = float(latitude)
+    except ValueError:
+        error_type = "Invalid Input"
+        error = "Latitude must be a number."
+        error_popup(error_type, error)
+        return
+
     create_backup()
 
     if type == 'mountain':
@@ -271,11 +282,11 @@ def create_item(type, info): #inputs for mountain information
         time_completed = f"{hours:02}:{minutes:02}"
         date = date.strftime('%Y-%m-%d')
         #adding mountain to database
-        insert_mountain(name, state, rating, elevation, ascension, time_completed, description, date, url)
+        insert_mountain(name, state, rating, elevation, ascension, time_completed, description, date, url, longitude, latitude)
 
     elif type == 'campsite':
         #adding campsite to database
-        insert_campsite(name, state, rating, description, url)
+        insert_campsite(name, state, rating, description, url, longitude, latitude)
 
     print(f'{type.capitalize()}: {name} is saved\n')
 
@@ -298,7 +309,7 @@ def remove_item(name, type): #removes item from database
             if c.rowcount > 0: #checks if any rows were affected (aka if it worked)
                 print(f'{type.capitalize()}: {name} has been removed\n')
             else:
-                print(f"No {type} has been found with name '{name}'\n")
+                no_delete(type, name)
 
     except sqlite3.Error as e:
         print(f"Database Error: {e}")
@@ -323,9 +334,9 @@ def item_search(name, type):
 
                 for row in results:
                     if type == 'campsite':
-                        data.append(campsite_format(row[1], row[2], row[3], row[4], row[5]))
+                        data.append(campsite_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
                     else:
-                        data.append(mountain_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7],row[8], row[9]))
+                        data.append(mountain_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7],row[8], row[9], row[10], row[11]))
 
                 return data #returns the data (as a list)
 
@@ -357,11 +368,54 @@ def replace_info(name, type, column, new_value): #updates info from a column
 
         new_value = new_value.strip() #gets input for new value
 
+        #input error handling:
         if not new_value: #checks for empty new_value
             error_type = "Invalid Input"
             error = "New value cannot be empty."
             error_popup(error_type, error)
             return
+
+        if column == "state" and new_value not in US_States: #checks if state is valid
+            error_type = "Invalid Input"
+            error = "Enter a valid US state."
+            error_popup(error_type, error)
+            return
+
+        if column in ["ascension", "elevation", "rating", "longitude", "latitude"]: #checks if all number columns are numbers.
+            try:
+                new_value = float(new_value)
+            except ValueError:
+                error_type = "Invalid Input"
+                error = f"{column.title()} must be a number."
+                error_popup(error_type, error)
+                return
+
+        if column == "url" and not new_value.startswith(("https://", "http://")):
+            error_type = "Invalid Input"
+            error = "URL must begin with 'https://' or 'http://'."
+            error_popup(error_type, error)
+            return
+
+        if column == "time_completed":
+            try:
+                hours, minutes = map(int, new_value.split(':'))  # parsing the data of date
+                if not (0 <= hours < 24 and 0 <= minutes <= 59):  # checking hours and minutes individually
+                    raise ValueError
+            except ValueError:
+                error_type = "Invalid Input"
+                error = "Please enter a valid time. Time must be in __:__ format."
+                error_popup(error_type, error)
+                return
+
+        if column == "date":
+            try:
+                test = datetime.strptime(new_value, '%Y-%m-%d') #checks if new_value is in the right format
+            except ValueError:
+                error_type = "Invalid Input"
+                error = "Please enter a valid date. Date must be in YYYY-MM-DD format."
+                error_popup(error_type, error)
+                return
+
 
         create_backup()
 
@@ -369,8 +423,10 @@ def replace_info(name, type, column, new_value): #updates info from a column
             c.execute(f"UPDATE {type} SET {column}=? WHERE name =?", (new_value, name))
             if c.rowcount > 0:
                 print(f'{type.capitalize()} {name}: {column.capitalize()} has been updated to {new_value}\n')
+                return True
             else:
-                print(f"No {type} has been found with name: '{name}'.\n")
+                no_modify(type, name)
+                return False
 
     except ValueError as e:
         print(e)
@@ -418,9 +474,9 @@ def sort_and_filter(column, value, order, type):
 
             for row in results:
                 if type == 'campsite':
-                    data.append(campsite_format(row[1], row[2], row[3], row[4], row[5]))
+                    data.append(campsite_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
                 else:
-                    data.append(mountain_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9]))
+                    data.append(mountain_format(row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11]))
 
             return data
 

@@ -1,10 +1,10 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from UI_design import Ui_MainWindow
 import os
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QTime, QDate
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy, QTableWidgetItem, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy, QTableWidgetItem, QMessageBox, QLabel
 import CampingDatabase_SQLite
 
 
@@ -12,6 +12,8 @@ class Window(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+
+        self.setWindowTitle("Camping Database") #sets title of the whole application window
 
         self.stackedWidget.setCurrentIndex(0) #sets the index to campsite search on startup
 
@@ -341,6 +343,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
         CampingDatabase_SQLite.create_item('campsite',info)
 
+        self.notification("Campsite Created") #success notification
+
     def mountain_create_submit(self):
         #grabs the info from the page
         name = self.lineEdit_11.text().strip()
@@ -356,6 +360,8 @@ class Window(QMainWindow, Ui_MainWindow):
         info = [name, state, rating, elevation, ascension, time, description, date, URL] #puts all info into 1 variable
 
         CampingDatabase_SQLite.create_item('mountain',info)
+
+        self.notification("Mountain Created") #success notification
 
     def update_rating_label(self, value): #updates label next to slider
         slider = self.sender()
@@ -388,8 +394,9 @@ class Window(QMainWindow, Ui_MainWindow):
             name = self.lineEdit_14.text().strip()
 
         delete = self.delete_confirm(type, name)
-        if delete:
+        if delete: #if confirmed, delete happens
             CampingDatabase_SQLite.remove_item(name, type)
+            self.notification(f"{type.title()}: {name} deleted") #success notification
         else:
             return
 
@@ -426,7 +433,11 @@ class Window(QMainWindow, Ui_MainWindow):
                 column = "time" #replace_info function only takes time
             new_value = self.lineEdit_18.text().strip()
 
-        CampingDatabase_SQLite.replace_info(name, type, column, new_value)
+        modify = CampingDatabase_SQLite.replace_info(name, type, column, new_value)
+        if modify: #to check if edit worked or not
+            self.notification(f"{type.capitalize()} {name}: {column.capitalize()} has been updated to {new_value}")
+        else:
+            return
 
 
     #stat functions:
@@ -459,6 +470,15 @@ class Window(QMainWindow, Ui_MainWindow):
             self.populate_table(formatted_text, table, header_title)
 
 
+    def notification(self, message):
+        label = QLabel(message)
+        label.setStyleSheet("fontsize: 14; font-weight: bold;")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.statusBar().clearMessage()
+        self.statusBar().addWidget(label, 1)
+
+        QTimer.singleShot(3000, lambda: self.statusBar().removeWidget(label))
 
     #page reset function:
     def page_reset(self, index):
