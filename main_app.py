@@ -1,12 +1,80 @@
+import sys
 from PyQt6.QtCore import Qt, QTimer
 from UI_design import Ui_MainWindow
 import os
+import http.server
+import socketserver
+import socket
+import threading
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import QTime, QDate
-from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy, QTableWidgetItem, QMessageBox, QLabel
+from PyQt6.QtCore import QTime, QDate, QUrl
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy, QTableWidgetItem, QMessageBox, QLabel, \
+    QWidget, QVBoxLayout
 import CampingDatabase_SQLite
 
+#=== Server Code ===
+"""
+In order for the folium maps to be displayed in PyQt6, they must be sent from a local server.
+This is because they are html files and PyQt6 views these are security risks.
+Getting the file from a local server circumvents this issue.
+"""
+PORT = 8000 #any number above 1024 is good
+
+server = None #sets the server variable
+
+class HTTPServer(socketserver.TCPServer):
+    def __init__(self, server_address, RequestHandler):
+        super().__init__(server_address, RequestHandler)
+        self.running = True #to detect if the server is running
+
+    def stop(self): #stops the server
+        self.running = False
+        self.shutdown()
+        self.server_close()
+
+
+#starting a basic HTTP server:
+def start_server():
+    global server
+    script_dir = os.path.dirname(os.path.abspath(__file__)) #gets the directory of the script
+    os.chdir(script_dir)
+
+    handler = http.server.SimpleHTTPRequestHandler
+    server = HTTPServer(('', PORT), handler)
+    print(f"Serving at http://localhost:{PORT}")
+
+    #runs the server forever unless told otherwise
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass #makes so ctrl c does nothing when run code is run in terminal, extra error protection
+    finally: #will always make sure the server closes accordingly
+        server.server_close()
+
+def port_use(port): #detects if port is in use (shouldn't be a problem locally but just in case)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        result =  s.connect_ex(("localhost", port)) == 0
+        s.close() #closes the socket
+        return result
+
+if not port_use(PORT): #makes sure port isn't in use
+    #threading: makes it so the server and the PyQt application can run at the same time
+    server_thread = threading.Thread(target=start_server, daemon=True) #'daemon = True' ensures the thread is closed once the program is
+    server_thread.start()
+else:
+    print(f"Server is already running at http://localhost:{PORT}")
+
+def close_server():
+    if server and server.running: #makes sure server exists before continuing and its running
+        print(f"Shutting down server...")
+        server.stop()
+        print(f"Server shut down.") #for debugging
+
+
+
+#=== PyQt Code ===
 
 class Window(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -21,6 +89,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
         #setting the label icons' Pixmap
         self.label_3.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "menu-burger.png")))  #hamburger icon
+
+        self.label_76.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "map.png"))) #map icon
 
         self.label_6.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "search.png"))) #campsite search icon
         self.label_14.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "list.png"))) #campsite display icon
@@ -38,6 +108,15 @@ class Window(QMainWindow, Ui_MainWindow):
         self.label_38.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "mountains.png")))  #mountain stats icon
 
         self.label_40.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "power.png")))  #exit icon
+
+        #ok I updated to PyQt6 6.8 (previously worked on 6.4) and now in order for the buttons to be invisible, I have to change the background of them
+        button_list = [self.pushButton_25, self.pushButton, self.pushButton_5, self.pushButton_32,
+                       self.pushButton_3, self.pushButton_4, self.pushButton_6, self.pushButton_7,
+                       self.pushButton_8, self.pushButton_9, self.pushButton_10, self.pushButton_15,
+                       self.pushButton_16, self.pushButton_19, self.pushButton_2]
+        for button in button_list:
+            button.setStyleSheet("background: transparent; border: none;")
+
 
         #could make a function that takes the label and the name of the .png file to optimize the code a bit
 
@@ -57,6 +136,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
             "campsite_statistics": self.pushButton_15,
             "mountain_statistics": self.pushButton_16,
+            #"map_page": self.pushButton_25,
 
             #"exit": self.pushButton_19
         }
@@ -170,6 +250,8 @@ class Window(QMainWindow, Ui_MainWindow):
         #statistics functionality:
         self.stackedWidget.currentChanged.connect(self.statistics) #checks the index if it's the right page and if so it runs the stats
 
+        #map page functionality:
+        self.pushButton_25.clicked.connect(self.load_map)
 
 
 
@@ -179,22 +261,23 @@ class Window(QMainWindow, Ui_MainWindow):
         #dictionary for page indexes
         page_map = {
             "campsite_search": 0,
-            "campsite_display": 12,
+            "campsite_display": 13,
             "campsite_create": 3,
             "campsite_delete": 4,
             "campsite_modify": 2,
 
-            "mountain_search": 8,
-            "mountain_display": 9,
-            "mountain_create": 11,
-            "mountain_delete": 7,
+            "mountain_search": 9,
+            "mountain_display": 10,
+            "mountain_create": 12,
+            "mountain_delete": 8,
             "mountain_modify": 6,
 
-            "campsite_statistics": 10,
+            "campsite_statistics": 11,
             "mountain_statistics": 5,
+            "map_page": 7,
 
             #campsite_search_2 = 1,
-            #mountain_search_2 = 13,
+            #mountain_search_2 = 14,
             }
 
         for key, button in self.buttons.items(): #changing the page index according to the button clicked
@@ -228,7 +311,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
             data = CampingDatabase_SQLite.item_search(name, type)
             if data:  # if data is empty, doesn't change index
-                self.stackedWidget.setCurrentIndex(13)
+                self.stackedWidget.setCurrentIndex(14)
         elif clicked_button == self.pushButton_31 or clicked_button == self.lineEdit_16:
             type = 'mountain'
             name = self.lineEdit_16.text().strip()
@@ -338,8 +421,10 @@ class Window(QMainWindow, Ui_MainWindow):
         rating = float(self.horizontalSlider.value())
         description = self.textEdit.toPlainText()
         URL = self.lineEdit_6.text().strip()
+        longitude = self.lineEdit_19.text().strip()
+        latitude = self.lineEdit_20.text().strip()
 
-        info = [name, state, rating, description, URL] #puts all info into 1 variable
+        info = [name, state, rating, description, URL, longitude, latitude] #puts all info into 1 variable
 
         CampingDatabase_SQLite.create_item('campsite',info)
 
@@ -356,8 +441,10 @@ class Window(QMainWindow, Ui_MainWindow):
         description = self.textEdit_2.toPlainText()
         date = self.dateEdit.date().toString("yyyy-MM-dd")
         URL = self.lineEdit_10.text().strip()
+        longitude = self.lineEdit_21.text().strip()
+        latitude = self.lineEdit_22.text().strip()
 
-        info = [name, state, rating, elevation, ascension, time, description, date, URL] #puts all info into 1 variable
+        info = [name, state, rating, elevation, ascension, time, description, date, URL, longitude, latitude] #puts all info into 1 variable
 
         CampingDatabase_SQLite.create_item('mountain',info)
 
@@ -442,7 +529,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     #stat functions:
     def statistics(self, index):
-        if index == 10:
+        if index == 11:
           type = 'campsite'
           table = self.tableWidget_5
         elif index == 5:
@@ -470,6 +557,15 @@ class Window(QMainWindow, Ui_MainWindow):
             self.populate_table(formatted_text, table, header_title)
 
 
+    #map page functions:
+    def load_map(self):
+        try:
+            self.map_window = MapWindow()
+            self.map_window.show()
+        except Exception as e:
+            print(f"Error: {e}")
+
+
     def notification(self, message):
         label = QLabel(message)
         label.setStyleSheet("fontsize: 14; font-weight: bold;")
@@ -491,7 +587,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.tableWidget.clear()
             self.tableWidget.setRowCount(0)
             self.tableWidget.setColumnCount(0)
-        elif index == 12: #campsite display
+        elif index == 13: #campsite display
             self.clear_display_campsite()
         elif index == 3: #campsite create
             self.clear_create_campsite()
@@ -501,19 +597,19 @@ class Window(QMainWindow, Ui_MainWindow):
             self.lineEdit_7.clear()
             self.comboBox_2.setCurrentIndex(0)
             self.lineEdit_4.clear()
-        elif index == 8: #mountain search
+        elif index == 9: #mountain search
             self.lineEdit_8.clear()
-        elif index == 13: #mountain search 2
+        elif index == 14: #mountain search 2
             self.lineEdit_16.clear()
             #clearing tableWidget
             self.tableWidget_3.clear()
             self.tableWidget_3.setRowCount(0)
             self.tableWidget_3.setColumnCount(0)
-        elif index == 9: #mountain display
+        elif index == 10: #mountain display
             self.clear_display_mountain()
-        elif index == 11: #mountain create
+        elif index == 12: #mountain create
             self.clear_create_mountain()
-        elif index == 7: #mountain delete
+        elif index == 8: #mountain delete
             self.lineEdit_14.clear()
         elif index == 6: #mountain modify
             self.lineEdit_17.clear()
@@ -558,9 +654,36 @@ class Window(QMainWindow, Ui_MainWindow):
         self.dateEdit.setDate(QDate(2000, 1, 1))  # resets to default
         self.lineEdit_10.clear()
 
+class MapWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Map Viewer")
+        self.setGeometry(100, 100, 800, 600)
 
-app = QApplication([])
+        self.web_view = QWebEngineView() #creating QWebEngine widget
+
+        #Layout:
+        container = QWidget()
+        layout = QVBoxLayout()
+        layout.addWidget(self.web_view)
+        container.setLayout(layout)
+        self.setCentralWidget(container)
+
+        QTimer.singleShot(500, self.load_map2) #sets a small delay before loading the map so window can be created right
+
+    def load_map2(self):
+        try:
+            file_url = QUrl("http://localhost:8000/basemap.html") #file_url has to be run with QUrl first
+            print(f"Loading map from: {file_url.toString()}")
+            self.web_view.load(file_url)
+        except Exception as e:
+            print(f"Error loading map: {e}")
+            return
+
+app = QApplication(sys.argv) #"sys.argv" allows for proper initialization
+app.setApplicationName("CampingDatabaseApp")
 window = Window()
 
 window.show()
+app.aboutToQuit.connect(close_server) #closes the server before quiting
 app.exec()
