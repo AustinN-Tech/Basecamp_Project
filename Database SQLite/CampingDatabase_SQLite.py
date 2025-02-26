@@ -537,7 +537,7 @@ def make_main_map(): #main map creation
     try:
         main_map = folium.Map(
             location = [39.8283,-98.5795],
-            zoom_start = 6,
+            zoom_start = 5,
             tiles = 'https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png',
             attr = "Stadia.Outdoors"
         )

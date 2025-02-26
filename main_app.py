@@ -1,17 +1,16 @@
 import sys
-from PyQt6.QtCore import Qt, QTimer
-from UI_design import Ui_MainWindow
 import os
 import http.server
 import socketserver
 import socket
 import threading
-from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtCore import QTime, QDate, QUrl
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-from PyQt6.QtWidgets import QMainWindow, QApplication, QLineEdit, QSizePolicy, QTableWidgetItem, QMessageBox, QLabel, \
-    QWidget, QVBoxLayout
+from PyQt6 import QtWidgets
+from PyQt6.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QMessageBox, QLabel
+from UI_design import Ui_MainWindow
 import CampingDatabase_SQLite
 
 #=== Server Code ===
@@ -332,11 +331,11 @@ class Window(QMainWindow, Ui_MainWindow):
 
         header_title = "Search Results"
 
-        self.populate_table(data, self.table, header_title)
+        self.populate_table(data, self.table, header_title, type)
         if not data: self.no_results() #if data empty, runs no results popup
 
 
-    def populate_table(self, results, table, header_title): #to populate different tables
+    def populate_table(self, results, table, header_title, type): #to populate different tables
 
         table.setColumnCount(1)
 
@@ -361,8 +360,17 @@ class Window(QMainWindow, Ui_MainWindow):
         table.horizontalHeader().setFont(header_font)
         table.setHorizontalHeaderLabels([header_title]) #sets header of table
 
+        #row size: changes depending on data type
+        if type == "campsite":
+            table.verticalHeader().setMaximumSectionSize(150)
+        else:
+            table.verticalHeader().setMaximumSectionSize(225)
+
+
         table.setRowCount(len(results))  # sets row count relative to the data
         for row, result in enumerate(results): #goes through each result and displays it
+
+            #Result Display:
             item = QTableWidgetItem(result)
             item.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable) #makes it so it isn't editable
 
@@ -370,6 +378,7 @@ class Window(QMainWindow, Ui_MainWindow):
             table.setWordWrap(True)
 
             table.setItem(row, 0, item)
+
 
         table.resizeRowsToContents()
         table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch) #resizes the contents of the table to the tableWidget
@@ -399,7 +408,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         header_title = "Search Results"
 
-        self.populate_table(data, table, header_title) #populates display tableWidget
+        self.populate_table(data, table, header_title, type) #populates display tableWidget
         if not data: self.no_results() #if data is empty, runs no results popup
 
     def no_results(self): #no results pop-up
@@ -549,7 +558,7 @@ class Window(QMainWindow, Ui_MainWindow):
             #updating info:
             self.label_60.setText(str(total)) #label displaying camp total
             self.label_61.setText(str(state_total)) #label displaying total states
-            self.populate_table(formatted_text, table, header_title) #adds data to table
+            self.populate_table(formatted_text, table, header_title, type) #adds data to table
         elif type == 'mountain':
             #updating info
             self.label_64.setText(str(total))
@@ -557,18 +566,10 @@ class Window(QMainWindow, Ui_MainWindow):
             self.label_72.setText(str(average_ascension))
             self.label_70.setText(str(average_elevation))
             #need to add elevation average
-            self.populate_table(formatted_text, table, header_title)
+            self.populate_table(formatted_text, table, header_title, type)
 
 
     #map page functions:
-    def load_map(self):
-        try:
-            CampingDatabase_SQLite.make_main_map()
-            self.map_window = MapWindow()
-            self.map_window.show()
-        except Exception as e:
-            print(f"Error: {e}")
-
     def load_main_map(self, index):
         if index == 7:
             if not hasattr(self, "main_web_view"): #checks if main_web_view already exists
@@ -671,32 +672,6 @@ class Window(QMainWindow, Ui_MainWindow):
         self.lineEdit_10.clear()
         self.lineEdit_21.clear()
         self.lineEdit_22.clear()
-
-class MapWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Map Viewer")
-        self.setGeometry(100, 100, 800, 600)
-
-        self.web_view = QWebEngineView() #creating QWebEngine widget
-
-        #Layout:
-        container = QWidget()
-        layout = QVBoxLayout()
-        layout.addWidget(self.web_view)
-        container.setLayout(layout)
-        self.setCentralWidget(container)
-
-        QTimer.singleShot(500, self.load_map2) #sets a small delay before loading the map so window can be created right
-
-    def load_map2(self):
-        try:
-            file_url = QUrl("http://localhost:8000/main_map.html") #file_url has to be run with QUrl first
-            print(f"Loading map from: {file_url.toString()}")
-            self.web_view.load(file_url)
-        except Exception as e:
-            print(f"Error loading map: {e}")
-            return
 
 app = QApplication(sys.argv) #"sys.argv" allows for proper initialization
 app.setApplicationName("CampingDatabaseApp")
