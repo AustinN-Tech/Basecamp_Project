@@ -2,6 +2,7 @@ import shutil
 import sqlite3
 from datetime import datetime
 from PyQt6.QtWidgets import QMessageBox
+import folium
 
 conn = sqlite3.connect('ProjectDatabase.db')
 c = conn.cursor()
@@ -107,13 +108,13 @@ type_map= {
 
 def campsite_format(name, state, rating, description, url, longitude, latitude):
     formatted_output = (
-        f"Name: {name}\nState: {state}\nRating: {rating}\nDescription: {description}\nURL: {url}\nCoordinates: {longitude},{latitude}\n"
+        f"Name: {name}\nState: {state}\nRating: {rating}\nDescription: {description}\nURL: {url}\nCoordinates: {latitude},{longitude}\n"
     )
     return formatted_output
 
 def mountain_format(name, state, rating, elevation, ascension, time_completed, description, date, url, longitude, latitude):
     formatted_output = (
-        f"Name: {name}\nState: {state}\nRating: {rating}\nElevation: {elevation}\nTotal Feet Ascended: {ascension}\nTime to complete: {time_completed}\nDescription: {description}\nDate Completed: {date}\nURL: {url}\nCoordinates: {longitude},{latitude}\n"
+        f"Name: {name}\nState: {state}\nRating: {rating}\nElevation: {elevation}\nTotal Feet Ascended: {ascension}\nTime to complete: {time_completed}\nDescription: {description}\nDate Completed: {date}\nURL: {url}\nCoordinates: {latitude},{longitude}\n"
     )
     return formatted_output
 
@@ -152,18 +153,20 @@ def validate_type(type): #utility function for validating types
 
 def create_item(type, info): #inputs for mountain information
 
+    done = False
+
     if not validate_type(type): #checks the type
         return
     if not info:
         print("Missing Info.")
-        return
+        return done
 
     name = info[0].strip()
     if not name: #makes sure that the name isn't left blank
         error_type = "Invalid Input"
         error = f"{type.title()} name cannot be empty."
         error_popup(error_type, error)
-        return
+        return done
 
     global US_States #grabs the set of states
     state = info[1].strip().title()
@@ -174,7 +177,7 @@ def create_item(type, info): #inputs for mountain information
         error_type = "Invalid Input"
         error = "State cannot be empty."
         error_popup(error_type, error)
-        return
+        return done
 
     rating = info[2]
     try: #making sure correct values are implemented
@@ -185,7 +188,7 @@ def create_item(type, info): #inputs for mountain information
         error_type = "Invalid Input"
         error = "Enter a value from 1 to 5."
         error_popup(error_type, error)
-        return
+        return done
 
     if type == 'mountain':
         elevation = info[3]
@@ -197,7 +200,7 @@ def create_item(type, info): #inputs for mountain information
             error_type = "Invalid Input"
             error = "Elevation must be a number."
             error_popup(error_type, error)
-            return
+            return done
 
         ascension = info[4]
         try:
@@ -208,7 +211,7 @@ def create_item(type, info): #inputs for mountain information
             error_type = "Invalid Input"
             error = "Ascension must be a number."
             error_popup(error_type, error)
-            return
+            return done
 
         time = info[5].strip()
         try:
@@ -219,7 +222,7 @@ def create_item(type, info): #inputs for mountain information
             error_type = "Invalid Input"
             error = "Please enter a valid time."
             error_popup(error_type, error)
-            return
+            return done
 
     if type == 'campsite':
         description = info[3].strip()
@@ -229,7 +232,7 @@ def create_item(type, info): #inputs for mountain information
         error_type = "Invalid Input"
         error = "Description cannot be empty."
         error_popup(error_type, error)
-        return
+        return done
 
     if type == 'mountain':
         date = info[7].strip()
@@ -239,7 +242,7 @@ def create_item(type, info): #inputs for mountain information
             error_type = "Invalid Input"
             error = "Please enter a valid date."
             error_popup(error_type, error)
-            return
+            return done
 
     if type == 'campsite':
         url = info[4].strip()
@@ -249,7 +252,7 @@ def create_item(type, info): #inputs for mountain information
         error_type = "Invalid Input"
         error = "URL must begin with 'https://' or 'http://'."
         error_popup(error_type, error)
-        return
+        return done
 
     if type == 'campsite':
         longitude = info[5].strip()
@@ -261,7 +264,7 @@ def create_item(type, info): #inputs for mountain information
         error_type = "Invalid Input"
         error = "Longitude must be a number."
         error_popup(error_type, error)
-        return
+        return done
 
     if type == 'campsite':
         latitude = info[6].strip()
@@ -273,7 +276,7 @@ def create_item(type, info): #inputs for mountain information
         error_type = "Invalid Input"
         error = "Latitude must be a number."
         error_popup(error_type, error)
-        return
+        return done
 
     create_backup()
 
@@ -289,10 +292,14 @@ def create_item(type, info): #inputs for mountain information
         insert_campsite(name, state, rating, description, url, longitude, latitude)
 
     print(f'{type.capitalize()}: {name} is saved\n')
+    done = True
+    return done
 
 
 def remove_item(name, type): #removes item from database
     if not validate_type(type): return #checking type
+
+    done = False
 
     name = name.strip()
     if not name:
@@ -308,8 +315,11 @@ def remove_item(name, type): #removes item from database
             c.execute(f"DELETE FROM {type} WHERE name=?", (name,))
             if c.rowcount > 0: #checks if any rows were affected (aka if it worked)
                 print(f'{type.capitalize()}: {name} has been removed\n')
+                done = True
+                return done
             else:
                 no_delete(type, name)
+                return done
 
     except sqlite3.Error as e:
         print(f"Database Error: {e}")
@@ -522,3 +532,44 @@ def statistics(type):
     except Exception as e:
         print(f"Error: {e}")
         return 0, 0, []
+
+def make_main_map(): #main map creation
+    try:
+        main_map = folium.Map(
+            location = [39.8283,-98.5795],
+            zoom_start = 6,
+            tiles = 'https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png',
+            attr = "Stadia.Outdoors"
+        )
+
+        c.execute("SELECT * from campsite")
+        results = c.fetchall()
+
+        if not results:
+            print("No campsites found in database.")
+        for row in results:
+            folium.Marker(
+                location = [row[7], row[6]],
+                tooltip = row[4],
+                popup = row[1],
+                icon=folium.Icon(icon="campground", prefix="fa", color="green"),  #icon for campsites
+            ).add_to(main_map)
+
+        c.execute("SELECT * from mountain")
+        results = c.fetchall()
+
+        if not results:
+            print("No mountains found in database.")
+        for row in results:
+            folium.Marker(
+                location = [row[11], row[10]],
+                tooltip = row[7],
+                popup = row[1],
+                icon=folium.Icon(icon="mountain", prefix="fa", color="gray")  #icon for mountains
+            ).add_to(main_map)
+
+        main_map.save("main_map.html")
+    except sqlite3.Error as e:
+        print(f"Database Error: {e}")
+    except Exception as e:
+        print(f"Error: {e}")

@@ -136,7 +136,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
             "campsite_statistics": self.pushButton_15,
             "mountain_statistics": self.pushButton_16,
-            #"map_page": self.pushButton_25,
+            "map_page": self.pushButton_25,
 
             #"exit": self.pushButton_19
         }
@@ -169,6 +169,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
         #campsite create functionality:
         self.pushButton_14.clicked.connect(self.campsite_create_submit) #submit button
+        self.lineEdit_19.setPlaceholderText("Latitude")
+        self.lineEdit_20.setPlaceholderText("Longitude")
 
         #comboBox:
         self.comboBox.clear() #clears previous entries
@@ -200,7 +202,7 @@ class Window(QMainWindow, Ui_MainWindow):
         #column comboBox:
         self.comboBox_2.clear()
         self.comboBox_2.addItem("") #adds blank entry
-        self.comboBox_2.addItems(["Name","State","Rating","Description", "URL"]) #adds proper columns
+        self.comboBox_2.addItems(["Name","State","Rating","Description", "URL", "Latitude", "Longitude"]) #adds proper columns
 
 
         #mountain search functionality:
@@ -222,6 +224,8 @@ class Window(QMainWindow, Ui_MainWindow):
         #mountain create functionality:
         self.pushButton_27.clicked.connect(self.mountain_create_submit) #submit button
         self.pushButton_26.clicked.connect(self.reset_clicked_create) #reset button
+        self.lineEdit_21.setPlaceholderText("Latitude")
+        self.lineEdit_22.setPlaceholderText("Longitude")
 
         #comboBox:
         self.comboBox_3.clear() #clears previous entries
@@ -245,13 +249,13 @@ class Window(QMainWindow, Ui_MainWindow):
         self.pushButton_30.clicked.connect(self.modify_clicked) #submit button
         self.comboBox_11.clear()
         self.comboBox_11.addItem("")  # adds blank entry
-        self.comboBox_11.addItems(["Name", "State", "Rating", "Elevation", "Ascension", "Time Taken", "Description", "Date", "URL"])  # adds proper columns
+        self.comboBox_11.addItems(["Name", "State", "Rating", "Elevation", "Ascension", "Time Taken", "Description", "Date", "URL", "Latitude", "Longitude"])  # adds proper columns
 
         #statistics functionality:
         self.stackedWidget.currentChanged.connect(self.statistics) #checks the index if it's the right page and if so it runs the stats
 
         #map page functionality:
-        self.pushButton_25.clicked.connect(self.load_map)
+        self.stackedWidget.currentChanged.connect(self.load_main_map)
 
 
 
@@ -421,14 +425,15 @@ class Window(QMainWindow, Ui_MainWindow):
         rating = float(self.horizontalSlider.value())
         description = self.textEdit.toPlainText()
         URL = self.lineEdit_6.text().strip()
-        longitude = self.lineEdit_19.text().strip()
-        latitude = self.lineEdit_20.text().strip()
+        longitude = self.lineEdit_20.text().strip()
+        latitude = self.lineEdit_19.text().strip()
 
         info = [name, state, rating, description, URL, longitude, latitude] #puts all info into 1 variable
 
-        CampingDatabase_SQLite.create_item('campsite',info)
+        done = CampingDatabase_SQLite.create_item('campsite',info)
 
-        self.notification("Campsite Created") #success notification
+        if done: #checks if it success
+            self.notification("Campsite Created") #success notification
 
     def mountain_create_submit(self):
         #grabs the info from the page
@@ -441,14 +446,15 @@ class Window(QMainWindow, Ui_MainWindow):
         description = self.textEdit_2.toPlainText()
         date = self.dateEdit.date().toString("yyyy-MM-dd")
         URL = self.lineEdit_10.text().strip()
-        longitude = self.lineEdit_21.text().strip()
-        latitude = self.lineEdit_22.text().strip()
+        longitude = self.lineEdit_22.text().strip()
+        latitude = self.lineEdit_21.text().strip()
 
         info = [name, state, rating, elevation, ascension, time, description, date, URL, longitude, latitude] #puts all info into 1 variable
 
-        CampingDatabase_SQLite.create_item('mountain',info)
+        done = CampingDatabase_SQLite.create_item('mountain',info)
 
-        self.notification("Mountain Created") #success notification
+        if done:
+            self.notification("Mountain Created") #success notification
 
     def update_rating_label(self, value): #updates label next to slider
         slider = self.sender()
@@ -482,10 +488,9 @@ class Window(QMainWindow, Ui_MainWindow):
 
         delete = self.delete_confirm(type, name)
         if delete: #if confirmed, delete happens
-            CampingDatabase_SQLite.remove_item(name, type)
-            self.notification(f"{type.title()}: {name} deleted") #success notification
-        else:
-            return
+            done = CampingDatabase_SQLite.remove_item(name, type)
+            if done: self.notification(f"{type.title()}: {name} deleted") #success notification
+
 
     def delete_confirm(self, type, name): #confirm delete pop-up
         #setting visuals:
@@ -523,8 +528,6 @@ class Window(QMainWindow, Ui_MainWindow):
         modify = CampingDatabase_SQLite.replace_info(name, type, column, new_value)
         if modify: #to check if edit worked or not
             self.notification(f"{type.capitalize()} {name}: {column.capitalize()} has been updated to {new_value}")
-        else:
-            return
 
 
     #stat functions:
@@ -560,10 +563,21 @@ class Window(QMainWindow, Ui_MainWindow):
     #map page functions:
     def load_map(self):
         try:
+            CampingDatabase_SQLite.make_main_map()
             self.map_window = MapWindow()
             self.map_window.show()
         except Exception as e:
             print(f"Error: {e}")
+
+    def load_main_map(self, index):
+        if index == 7:
+            if not hasattr(self, "main_web_view"): #checks if main_web_view already exists
+                self.main_web_view = QWebEngineView()
+                self.gridLayout_17.addWidget(self.main_web_view)
+
+            CampingDatabase_SQLite.make_main_map()
+            file_url = QUrl("http://localhost:8000/main_map.html")
+            self.main_web_view.load(file_url)
 
 
     def notification(self, message):
@@ -643,6 +657,8 @@ class Window(QMainWindow, Ui_MainWindow):
         self.horizontalSlider.setValue(1)
         self.textEdit.clear()
         self.lineEdit_6.clear()
+        self.lineEdit_19.clear()
+        self.lineEdit_20.clear()
     def clear_create_mountain(self):
         self.lineEdit_11.clear()
         self.comboBox_3.setCurrentIndex(0)
@@ -653,6 +669,8 @@ class Window(QMainWindow, Ui_MainWindow):
         self.textEdit_2.clear()
         self.dateEdit.setDate(QDate(2000, 1, 1))  # resets to default
         self.lineEdit_10.clear()
+        self.lineEdit_21.clear()
+        self.lineEdit_22.clear()
 
 class MapWindow(QMainWindow):
     def __init__(self):
@@ -673,7 +691,7 @@ class MapWindow(QMainWindow):
 
     def load_map2(self):
         try:
-            file_url = QUrl("http://localhost:8000/basemap.html") #file_url has to be run with QUrl first
+            file_url = QUrl("http://localhost:8000/main_map.html") #file_url has to be run with QUrl first
             print(f"Loading map from: {file_url.toString()}")
             self.web_view.load(file_url)
         except Exception as e:
