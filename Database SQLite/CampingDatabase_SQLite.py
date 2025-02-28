@@ -3,6 +3,9 @@ import sqlite3
 from datetime import datetime
 from PyQt6.QtWidgets import QMessageBox
 import folium
+import logging
+
+logger = logging.getLogger(__name__)
 
 conn = sqlite3.connect('ProjectDatabase.db')
 c = conn.cursor()
@@ -40,7 +43,7 @@ c = conn.cursor()
 #         """)
 
 def error_popup(error_type, error): #popup for errors.
-    print(f"{error_type}: {error}")
+    logger.error(f"{error_type}: {error}")
     pop = QMessageBox()
     pop.setWindowTitle("Error")
     pop.setText(f"{error_type}: {error}")
@@ -48,7 +51,7 @@ def error_popup(error_type, error): #popup for errors.
     pop.exec()
 
 def no_delete(type, name): #popup for if delete doesn't work
-    print(f"No {type} has been found with name '{name}'")
+    logger.warning(f"No {type} has been found with name '{name}'")
     pop = QMessageBox()
     pop.setWindowTitle("Deletion Unsuccessful")
     pop.setText(f"No {type} has been found with name: '{name}'.")
@@ -56,7 +59,7 @@ def no_delete(type, name): #popup for if delete doesn't work
     pop.exec()
 
 def no_modify(type, name):
-    print(f"No {type} found with name: {name}.")
+    logger.warning(f"No {type} found with name: {name}.")
     pop = QMessageBox()
     pop.setWindowTitle("Edit Unsuccessful")
     pop.setText(f"No {type} found with name: {name}.")
@@ -77,7 +80,7 @@ def insert_campsite(name, state, rating, description, url, longitude, latitude):
         error = f"{e}"
         error_popup(error_type, error)
     except sqlite3.Error as e:
-        print(f'Database Error: {e}')
+        logger.error(f'Database Error: {e}')
 
 def insert_mountain(name, state, rating, elevation, ascension, time_completed, description, date, url, longitude, latitude):
     try:
@@ -91,7 +94,7 @@ def insert_mountain(name, state, rating, elevation, ascension, time_completed, d
         error = f"{e}"
         error_popup(error_type, error)
     except sqlite3.Error as e:
-        print(f'Database Error: {e}')
+        logger.error(f'Database Error: {e}')
 
 type_map= {
     'campsite': {
@@ -135,16 +138,17 @@ def create_backup(): #creates backup of file. simple function, to be updated lat
     backup_file = filename.replace('.db', '_backup.db')  # renames the backup file
     try:
         shutil.copy(filename, backup_file)  # creates backup file
+        logger.info(f"Backup created: {backup_file}")
     except FileNotFoundError:  # error handling
-        print(f"Database Error: '{filename}' not found\n")
+        logger.error(f"Database Error: '{filename}' not found\n")
     except PermissionError:
-        print("Database Error: permission denied\n")
+        logger.error("Database Error: permission denied\n")
     except Exception as e:
-        print(f'Unexpected error: {e}')
+        logger.error(f'Unexpected error: {e}')
 
 def validate_type(type): #utility function for validating types
     if type not in type_map:
-        print(f'Invalid type: {type}.')
+        logger.error(f'Invalid type: {type}.')
         return False
     return True
 
@@ -158,7 +162,7 @@ def create_item(type, info): #inputs for mountain information
     if not validate_type(type): #checks the type
         return
     if not info:
-        print("Missing Info.")
+        logger.error("Missing Info.")
         return done
 
     name = info[0].strip()
@@ -291,7 +295,7 @@ def create_item(type, info): #inputs for mountain information
         #adding campsite to database
         insert_campsite(name, state, rating, description, url, longitude, latitude)
 
-    print(f'{type.capitalize()}: {name} is saved\n')
+    logger.info(f'{type.capitalize()}: {name} is saved\n')
     done = True
     return done
 
@@ -351,11 +355,11 @@ def item_search(name, type):
                 return data #returns the data (as a list)
 
             else:
-                print(f"No {type} has been found with name '{name}'\n")
+                logger.error(f"No {type} has been found with name '{name}'\n")
                 return [] #returns empty list if no results found
 
     except sqlite3.Error as e:
-        print(f"Database Error: {e}")
+        logger.error(f"Database Error: {e}")
         return []
 
 
@@ -432,16 +436,16 @@ def replace_info(name, type, column, new_value): #updates info from a column
         with conn:
             c.execute(f"UPDATE {type} SET {column}=? WHERE name =?", (new_value, name))
             if c.rowcount > 0:
-                print(f'{type.capitalize()} {name}: {column.capitalize()} has been updated to {new_value}\n')
+                logger.info(f'{type.capitalize()} {name}: {column.capitalize()} has been updated to {new_value}\n')
                 return True
             else:
                 no_modify(type, name)
                 return False
 
     except ValueError as e:
-        print(e)
+        logger.error(e)
     except sqlite3.Error as e:
-        print(f'Database Error: {e}\n')
+        logger.error(f'Database Error: {e}\n')
 
 
 def sort_and_filter(column, value, order, type):
@@ -491,9 +495,9 @@ def sort_and_filter(column, value, order, type):
             return data
 
     except ValueError as e:
-        print(e)
+        logger.error(e)
     except sqlite3.Error as e:
-        print(f"Database Error: {e}\n")
+        logger.error(f"Database Error: {e}")
 
 def statistics(type):
     if not validate_type(type): return 0, 0, [] #returns empty values
@@ -516,7 +520,7 @@ def statistics(type):
 
        state_total = len(state_counts) #works cause "state_counts" is a tuple
 
-       print(f'Total {type}s found:', total,'\nTotal states:', (state_total))
+       logger.info(f'Total {type}s found: {total}, Total states: {state_total}')
 
        formatted_text = []
        for state, count in state_counts:
@@ -527,10 +531,10 @@ def statistics(type):
 
        #error handling: returns empty values if error
     except sqlite3.Error as e:
-        print (f"Database Error: {e}")
+        logger.error(f"Database Error: {e}")
         return 0, 0, []
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Error: {e}")
         return 0, 0, []
 
 def make_main_map(): #main map creation
@@ -546,7 +550,7 @@ def make_main_map(): #main map creation
         results = c.fetchall()
 
         if not results:
-            print("No campsites found in database.")
+            logger.info("No campsites found in database.")
         for row in results:
             folium.Marker(
                 location = [row[7], row[6]],
@@ -564,7 +568,7 @@ def make_main_map(): #main map creation
         results = c.fetchall()
 
         if not results:
-            print("No mountains found in database.")
+            logger.info("No mountains found in database.")
         for row in results:
             folium.Marker(
                 location = [row[11], row[10]],
@@ -581,7 +585,8 @@ def make_main_map(): #main map creation
             ).add_to(main_map)
 
         main_map.save("main_map.html")
+        logger.info("Main map created.")
     except sqlite3.Error as e:
-        print(f"Database Error: {e}")
+        logger.error(f"Database Error: {e}")
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Error: {e}")

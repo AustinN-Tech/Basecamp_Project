@@ -1,5 +1,6 @@
 import sys
 import os
+import logging
 import http.server
 import socketserver
 import socket
@@ -11,6 +12,12 @@ from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QMessageBox, QLabel
 from UI_design import Ui_MainWindow
+
+#setting up logging
+logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', filename='camp_app_log.log', filemode='w', level=logging.DEBUG) #log file clears everytime code runs
+logger = logging.getLogger(__name__)
+logger.debug("Logger initialized in main_app.py")
+
 import CampingDatabase_SQLite
 
 #=== Server Code ===
@@ -63,13 +70,13 @@ if not port_use(PORT): #makes sure port isn't in use
     server_thread = threading.Thread(target=start_server, daemon=True) #'daemon = True' ensures the thread is closed once the program is
     server_thread.start()
 else:
-    print(f"Server is already running at http://localhost:{PORT}")
+    logger.info(f"Server is already running at http://localhost:{PORT}")
 
 def close_server():
     if server and server.running: #makes sure server exists before continuing and its running
-        print(f"Shutting down server...")
+        logger.info(f"Shutting down server...")
         server.stop()
-        print(f"Server shut down.") #for debugging
+        logger.info(f"Server shut down.") #for debugging
 
 
 
@@ -85,7 +92,10 @@ class Window(QMainWindow, Ui_MainWindow):
 
         self.stackedWidget.setCurrentIndex(0) #sets the index to campsite search on startup
 
-        base_dir = os.getcwd() #gets the directory the code is running in
+        base_dir = os.path.dirname(os.path.abspath(__file__)) #gets the directory the code is running in
+        icon_dir = os.path.join(base_dir, "Icons")
+        if not os.path.exists(icon_dir): #verifies that icon folder is joined to base_dir
+            logger.warning(f"Icons directory not found at {icon_dir}.")
 
         #Sidebar Functionality:
         #setting the label icons' Pixmap
@@ -98,7 +108,11 @@ class Window(QMainWindow, Ui_MainWindow):
         }
         def set_icons(): #putting the labels/icons in a dictionary makes them easy to loop over, reducing repeated code
             for label, icon_name in self.labels.items():
-                label.setPixmap(QPixmap(os.path.join(base_dir, "Icons", icon_name)))
+                icon_path = os.path.join(icon_dir, icon_name) #finds the icon path
+                if os.path.exists(icon_path): #makes sure it found the right path
+                    label.setPixmap(QPixmap(os.path.join(base_dir, "Icons", icon_name)))
+                else:
+                    logger.warning(f"Icon '{icon_name}' not found at {icon_path}.")
         set_icons()
 
         #dictionary for button names
@@ -315,11 +329,11 @@ class Window(QMainWindow, Ui_MainWindow):
             name = self.lineEdit_16.text().strip()
             self.table = self.tableWidget_3
         else:
-            print("Button Error")
+            logger.error("Button Error")
             return
 
         if not name: #checks for blank
-            print(f"No {type} name entered")
+            logger.error(f"No {type} name entered")
             return
 
         data = CampingDatabase_SQLite.item_search(name, type) #you have to be specific when referencing functions from imported code
@@ -335,7 +349,7 @@ class Window(QMainWindow, Ui_MainWindow):
         table.setColumnCount(1)
 
         if not results: #if there is no results
-            print("No results found") #for extra logging
+            logger.info("No results found")
 
             #hides the indexes:
             table.verticalHeader().setVisible(False)
