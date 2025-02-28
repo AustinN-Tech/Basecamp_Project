@@ -6,7 +6,7 @@ import socket
 import threading
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtCore import QTime, QDate, QUrl
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QIcon
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QMessageBox, QLabel
@@ -80,44 +80,26 @@ class Window(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
-        self.setWindowTitle("Camping Database") #sets title of the whole application window
+        self.setWindowTitle("Basecamp") #sets title of the whole application window
+        self.setWindowIcon(QIcon("Icons/tent")) #sets icon
 
         self.stackedWidget.setCurrentIndex(0) #sets the index to campsite search on startup
 
         base_dir = os.getcwd() #gets the directory the code is running in
 
+        #Sidebar Functionality:
         #setting the label icons' Pixmap
-        self.label_3.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "menu-burger.png")))  #hamburger icon
-
-        self.label_76.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "map.png"))) #map icon
-
-        self.label_6.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "search.png"))) #campsite search icon
-        self.label_14.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "list.png"))) #campsite display icon
-        self.label_8.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "add.png")))  #campsite create icon
-        self.label_10.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "cross.png")))  #campsite delete icon
-        self.label_12.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "pencil.png"))) #campsite modify icon
-
-        self.label_16.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "search.png")))  #mountain search icon
-        self.label_18.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "list.png")))  #mountain display icon
-        self.label_20.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "add.png")))  #mountain create icon
-        self.label_22.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "cross.png")))  #mountain delete icon
-        self.label_24.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "pencil.png")))  #mountain modify icon
-
-        self.label_36.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "campfire.png")))  #campsite stats icon
-        self.label_38.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "mountains.png")))  #mountain stats icon
-
-        self.label_40.setPixmap(QPixmap(os.path.join(base_dir, "Icons", "power.png")))  #exit icon
-
-        #ok I updated to PyQt6 6.8 (previously worked on 6.4) and now in order for the buttons to be invisible, I have to change the background of them
-        button_list = [self.pushButton_25, self.pushButton, self.pushButton_5, self.pushButton_32,
-                       self.pushButton_3, self.pushButton_4, self.pushButton_6, self.pushButton_7,
-                       self.pushButton_8, self.pushButton_9, self.pushButton_10, self.pushButton_15,
-                       self.pushButton_16, self.pushButton_19, self.pushButton_2]
-        for button in button_list:
-            button.setStyleSheet("background: transparent; border: none;")
-
-
-        #could make a function that takes the label and the name of the .png file to optimize the code a bit
+        self.labels = {
+            self.label_3:"menu-burger.png", self.label_76:"map.png", self.label_6:"search.png",
+            self.label_14:"list.png", self.label_8:"add.png", self.label_10:"cross.png",
+            self.label_12:"pencil.png", self.label_16:"search.png", self.label_18:"list.png",
+            self.label_20:"add.png",self.label_22:"cross.png", self.label_24:"pencil.png",
+            self.label_36:"campfire.png",self.label_38:"mountains.png", self.label_40:"power.png"
+        }
+        def set_icons(): #putting the labels/icons in a dictionary makes them easy to loop over, reducing repeated code
+            for label, icon_name in self.labels.items():
+                label.setPixmap(QPixmap(os.path.join(base_dir, "Icons", icon_name)))
+        set_icons()
 
         #dictionary for button names
         self.buttons = {
@@ -137,28 +119,62 @@ class Window(QMainWindow, Ui_MainWindow):
             "mountain_statistics": self.pushButton_16,
             "map_page": self.pushButton_25,
 
-            #"exit": self.pushButton_19
+            "exit": self.pushButton_19
         }
 
         #closing application with exit button (pushButton_19)
         self.pushButton_19.clicked.connect(self.close)
 
-        for btn in self.buttons.values():
-            btn.clicked.connect(self.page_click)
+        for button in self.buttons.values():
+            button.setStyleSheet("background: transparent; border: none;") #Updated to PyQt6 6.8 (previously worked on 6.4) and now for the buttons to be invisible, I have to change the background of them
+            if button == "exit": #to avoid calling page_click on the exit button
+                pass
+            else:
+                button.clicked.connect(self.page_click)
 
 
+        #Page Functionality:
         self.stackedWidget.currentChanged.connect(self.page_reset)  #resets the page if index changes
 
+        # dictionary for page indexes
+        self.page_map = {
+            "campsite_search": 0,
+            "campsite_display": 13,
+            "campsite_create": 3,
+            "campsite_delete": 4,
+            "campsite_modify": 2,
 
-        #campsite search functionality:
+            "mountain_search": 9,
+            "mountain_display": 10,
+            "mountain_create": 12,
+            "mountain_delete": 8,
+            "mountain_modify": 6,
+
+            "campsite_statistics": 11,
+            "mountain_statistics": 5,
+            "map_page": 7,
+
+            # campsite_search_2 = 1,
+            # mountain_search_2 = 14,
+        }
+
+        # table stylesheets:
+        self.tables = [self.tableWidget, self.tableWidget_5, self.tableWidget_6,
+                       self.tableWidget_4, self.tableWidget_2, self.tableWidget_3
+                       ]
+        for table in self.tables:  # adds black border on all tables
+            table.setStyleSheet("QTableWidget { border: 1px solid black; }")
+
+
+        #Campsite search functionality:
         self.pushButton_11.clicked.connect(self.search_submit)
         self.lineEdit.returnPressed.connect(self.search_submit)
-        #campsite search 2:
+        #Campsite search 2:
         self.pushButton_29.clicked.connect(self.search_submit)
         self.lineEdit_15.returnPressed.connect(self.search_submit) #when return is pressed, it searches
 
 
-        #campsite display functionality:
+        #Campsite display functionality:
         self.comboBox_5.clear()
         self.comboBox_5.addItems(["Name", "State", "Rating"]) #adding items to column comboBox
 
@@ -166,7 +182,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.pushButton_20.clicked.connect(self.reset_clicked_display) #resets page if reset clicked
 
 
-        #campsite create functionality:
+        #Campsite create functionality:
         self.pushButton_14.clicked.connect(self.campsite_create_submit) #submit button
         self.lineEdit_19.setPlaceholderText("Latitude")
         self.lineEdit_20.setPlaceholderText("Longitude")
@@ -184,19 +200,19 @@ class Window(QMainWindow, Ui_MainWindow):
         self.horizontalSlider.setSingleStep(1)
         self.horizontalSlider.valueChanged.connect(self.update_rating_label) #updates label next to slider
 
-        #Slider map: (used for correlating labels)
+        #slider map: (used for correlating labels)
         self.slider_label_map = {
             self.horizontalSlider: self.label_31,
             self.horizontalSlider_2: self.label_52
         }
 
 
-        #campsite delete functionality:
+        #Campsite delete functionality:
         self.pushButton_18.clicked.connect(self.delete_clicked) #delete pressed
         self.lineEdit_3.returnPressed.connect(self.delete_clicked) #when enter is pressed
 
 
-        #campsite modify functionality:
+        #Campsite modify functionality:
         self.pushButton_21.clicked.connect(self.modify_clicked) #submit clicked
         #column comboBox:
         self.comboBox_2.clear()
@@ -204,7 +220,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.comboBox_2.addItems(["Name","State","Rating","Description", "URL", "Latitude", "Longitude"]) #adds proper columns
 
 
-        #mountain search functionality:
+        #Mountain search functionality:
         self.pushButton_22.clicked.connect(self.search_submit) #search clicked
         self.lineEdit_8.returnPressed.connect(self.search_submit) #return pressed
         #mountain search 2:
@@ -212,7 +228,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.lineEdit_16.returnPressed.connect(self.search_submit)
 
 
-        #mountain display functionality:
+        #Mountain display functionality:
         self.comboBox_6.clear()
         self.comboBox_6.addItems(["Name", "State", "Rating", "Elevation", "Ascension", "Time Taken", "Date"])  # adding items to column comboBox
 
@@ -220,7 +236,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.pushButton_23.clicked.connect(self.reset_clicked_display)  #if reset clicked
 
 
-        #mountain create functionality:
+        #Mountain create functionality:
         self.pushButton_27.clicked.connect(self.mountain_create_submit) #submit button
         self.pushButton_26.clicked.connect(self.reset_clicked_create) #reset button
         self.lineEdit_21.setPlaceholderText("Latitude")
@@ -239,53 +255,32 @@ class Window(QMainWindow, Ui_MainWindow):
         self.horizontalSlider_2.valueChanged.connect(self.update_rating_label)  # updates label next to slider
 
 
-        #mountain delete functionality:
+        #Mountain delete functionality:
         self.pushButton_28.clicked.connect(self.delete_clicked) #if delete clicked
         self.lineEdit_14.returnPressed.connect(self.delete_clicked) #if return pressed
 
 
-        #mountain modify functionality:
+        #Mountain modify functionality:
         self.pushButton_30.clicked.connect(self.modify_clicked) #submit button
         self.comboBox_11.clear()
         self.comboBox_11.addItem("")  # adds blank entry
         self.comboBox_11.addItems(["Name", "State", "Rating", "Elevation", "Ascension", "Time Taken", "Description", "Date", "URL", "Latitude", "Longitude"])  # adds proper columns
 
-        #statistics functionality:
+
+        #Statistics functionality:
         self.stackedWidget.currentChanged.connect(self.statistics) #checks the index if it's the right page and if so it runs the stats
 
-        #map page functionality:
-        self.stackedWidget.currentChanged.connect(self.load_main_map)
 
+        #Map page functionality:
+        self.stackedWidget.currentChanged.connect(self.load_main_map) #if index == map_page, then the map loads
 
-
+    #Sidebar button clicking functionality:
     def page_click(self):
         clicked_button = self.sender()
 
-        #dictionary for page indexes
-        page_map = {
-            "campsite_search": 0,
-            "campsite_display": 13,
-            "campsite_create": 3,
-            "campsite_delete": 4,
-            "campsite_modify": 2,
-
-            "mountain_search": 9,
-            "mountain_display": 10,
-            "mountain_create": 12,
-            "mountain_delete": 8,
-            "mountain_modify": 6,
-
-            "campsite_statistics": 11,
-            "mountain_statistics": 5,
-            "map_page": 7,
-
-            #campsite_search_2 = 1,
-            #mountain_search_2 = 14,
-            }
-
         for key, button in self.buttons.items(): #changing the page index according to the button clicked
             if button == clicked_button:
-                self.stackedWidget.setCurrentIndex(page_map[key])
+                self.stackedWidget.setCurrentIndex(self.page_map[key])
                 break
 
 
@@ -672,6 +667,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.lineEdit_10.clear()
         self.lineEdit_21.clear()
         self.lineEdit_22.clear()
+
 
 app = QApplication(sys.argv) #"sys.argv" allows for proper initialization
 app.setApplicationName("CampingDatabaseApp")

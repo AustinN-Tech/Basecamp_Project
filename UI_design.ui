@@ -78,9 +78,9 @@ QScrollBar::sub-page:vertical {
             <widget class="QWidget" name="scrollAreaWidgetContents">
              <property name="geometry">
               <rect>
-               <x>-16</x>
+               <x>0</x>
                <y>0</y>
-               <width>112</width>
+               <width>96</width>
                <height>824</height>
               </rect>
              </property>
@@ -237,7 +237,7 @@ QScrollBar::sub-page:vertical {
                  <string>Campsites</string>
                 </property>
                 <property name="checkable">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout">
                  <item>
@@ -569,7 +569,7 @@ QScrollBar::sub-page:vertical {
                  <string>Mountains</string>
                 </property>
                 <property name="checkable">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_2">
                  <item>
@@ -909,7 +909,7 @@ QScrollBar::sub-page:vertical {
                  <string>Statistics</string>
                 </property>
                 <property name="checkable">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_3">
                  <item>
@@ -1164,7 +1164,7 @@ QScrollBar::sub-page:vertical {
     <item row="0" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>7</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="campsite_search">
        <layout class="QGridLayout" name="gridLayout_3">
@@ -2191,22 +2191,6 @@ QScrollBar::sub-page:vertical {
         <item row="5" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_30">
           <item>
-           <spacer name="horizontalSpacer_45">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <widget class="QLabel" name="label_67">
             <property name="font">
              <font>
@@ -2248,22 +2232,6 @@ QScrollBar::sub-page:vertical {
         </item>
         <item row="7" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_32">
-          <item>
-           <spacer name="horizontalSpacer_49">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item>
            <widget class="QLabel" name="label_71">
             <property name="font">
@@ -2322,22 +2290,6 @@ QScrollBar::sub-page:vertical {
         </item>
         <item row="10" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_31">
-          <item>
-           <spacer name="horizontalSpacer_47">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item>
            <widget class="QLabel" name="label_69">
             <property name="font">
@@ -2431,22 +2383,6 @@ QScrollBar::sub-page:vertical {
         </item>
         <item row="3" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_29">
-          <item>
-           <spacer name="horizontalSpacer_41">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item>
            <widget class="QLabel" name="label_63">
             <property name="font">
@@ -3505,22 +3441,6 @@ QScrollBar::sub-page:vertical {
         <item row="5" column="1" colspan="2">
          <layout class="QHBoxLayout" name="horizontalLayout_28">
           <item>
-           <spacer name="horizontalSpacer_39">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <widget class="QLabel" name="label_59">
             <property name="font">
              <font>
@@ -3562,22 +3482,6 @@ QScrollBar::sub-page:vertical {
         </item>
         <item row="3" column="1" colspan="2">
          <layout class="QHBoxLayout" name="horizontalLayout_27">
-          <item>
-           <spacer name="horizontalSpacer_37">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Preferred</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item>
            <widget class="QLabel" name="label_58">
             <property name="font">

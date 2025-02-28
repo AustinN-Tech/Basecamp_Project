@@ -550,8 +550,13 @@ def make_main_map(): #main map creation
         for row in results:
             folium.Marker(
                 location = [row[7], row[6]],
-                tooltip = row[4],
-                popup = row[1],
+                tooltip = f"""
+                <span style="font-size:14px; font-weight:bold;">{row[1]}</span><br>
+                <b>Rating:</b> {row[3]} <br>
+                <b>Description:</b><br>
+                <p>{row[4]}</p>
+                """, #has to be html formatted not python
+                popup = f"<b>{row[1]}</b>",
                 icon=folium.Icon(icon="campground", prefix="fa", color="green"),  #icon for campsites
             ).add_to(main_map)
 
@@ -563,8 +568,15 @@ def make_main_map(): #main map creation
         for row in results:
             folium.Marker(
                 location = [row[11], row[10]],
-                tooltip = row[7],
-                popup = row[1],
+                tooltip = f"""
+                <span style="font-size:14px; font-weight:bold;">{row[1]}</span><br>
+                <b>Rating:</b> {row[3]} <br>
+                <b>Elevation:</b> {row[4]} <br>
+                <b>Ascension:</b> {row[5]} <br>
+                <b>Description:</b><br>
+                <p>{row[7]}</p>
+                """, #has to be html formatted not python
+                popup = f"<b>{row[1]}</b>",
                 icon=folium.Icon(icon="mountain", prefix="fa", color="gray")  #icon for mountains
             ).add_to(main_map)
 
