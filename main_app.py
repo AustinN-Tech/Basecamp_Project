@@ -13,12 +13,25 @@ from PyQt6 import QtWidgets
 from PyQt6.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QMessageBox, QLabel
 from UI_design import Ui_MainWindow
 
+
+if getattr(sys, 'frozen', False): #checks if running as exe
+    direct = os.path.dirname(sys.executable)
+    #setting up the log directory:
+    log_dir = os.path.join(direct, 'logs')
+    if not log_dir: #if not created, creates one
+        os.makedirs(log_dir)
+
+    log_file = os.path.join(log_dir, 'camp_app_log.log')
+else: #not needed if running as .py
+    log_file = 'camp_app_log.log'
+
 #setting up logging
-logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', filename='camp_app_log.log', filemode='w', level=logging.DEBUG) #log file clears everytime code runs
+logging.basicConfig(format='%(asctime)s - %(levelname)s: %(message)s', filename=log_file, filemode='w', level=logging.DEBUG) #log file clears everytime code runs
 logger = logging.getLogger(__name__)
-logger.debug("Logger initialized in main_app.py")
+logger.debug(f"Logger initialized in main_app.py.")
 
 import CampingDatabase_SQLite
+
 
 #=== Server Code ===
 """
@@ -26,11 +39,11 @@ In order for the folium maps to be displayed in PyQt6, they must be sent from a 
 This is because they are html files and PyQt6 views these are security risks.
 Getting the file from a local server circumvents this issue.
 """
-PORT = 8000 #any number above 1024 is good
+PORT = 8001 #any number above 1024 is good
 
 server = None #sets the server variable
 
-class HTTPServer(socketserver.TCPServer):
+class HTTPServer(socketserver.TCPServer): #extending server class to stop itself accordingly
     def __init__(self, server_address, RequestHandler):
         super().__init__(server_address, RequestHandler)
         self.running = True #to detect if the server is running
@@ -44,12 +57,15 @@ class HTTPServer(socketserver.TCPServer):
 #starting a basic HTTP server:
 def start_server():
     global server
-    script_dir = os.path.dirname(os.path.abspath(__file__)) #gets the directory of the script
-    os.chdir(script_dir)
+    if getattr(sys, 'frozen', False):  # checks if running as exe
+        script_dir = os.path.dirname(sys.executable)
+    else:
+        script_dir = os.path.dirname(os.path.abspath(__file__)) #gets the directory of the script
+    os.chdir(script_dir) #changes working directory to where the script is loaded
 
     handler = http.server.SimpleHTTPRequestHandler
     server = HTTPServer(('', PORT), handler)
-    print(f"Serving at http://localhost:{PORT}")
+    logger.info(f"Serving at http://localhost:{PORT}")
 
     #runs the server forever unless told otherwise
     try:
@@ -66,7 +82,12 @@ def port_use(port): #detects if port is in use (shouldn't be a problem locally b
         return result
 
 if not port_use(PORT): #makes sure port isn't in use
-    #threading: makes it so the server and the PyQt application can run at the same time
+    """
+    Threading allows multiple tasks to occur simultaneously. 
+    By default, a single main thread always runs. In this instance, I create another thread just for the server.
+    It is set as a "daemon" thread, meaning that when the application closes/ends, the thread also ends, thus closing the server.
+    In short, threading allows the server and the PyQt6 application to both run at once.
+    """
     server_thread = threading.Thread(target=start_server, daemon=True) #'daemon = True' ensures the thread is closed once the program is
     server_thread.start()
 else:
@@ -88,14 +109,19 @@ class Window(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.setWindowTitle("Basecamp") #sets title of the whole application window
-        self.setWindowIcon(QIcon("Icons/tent")) #sets icon
 
         self.stackedWidget.setCurrentIndex(0) #sets the index to campsite search on startup
 
-        base_dir = os.path.dirname(os.path.abspath(__file__)) #gets the directory the code is running in
+        if getattr(sys, 'frozen', False): #checks if running as exe (so if run as exe, sys will have the attribute 'frozen')
+            base_dir = os.path.dirname(sys.executable)  # Use the exe directory (where the exe is located)
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__)) #gets the directory the code is running in
+
         icon_dir = os.path.join(base_dir, "Icons")
         if not os.path.exists(icon_dir): #verifies that icon folder is joined to base_dir
             logger.warning(f"Icons directory not found at {icon_dir}.")
+
+        self.setWindowIcon(QIcon(os.path.join(icon_dir, "tent.ico"))) #sets icon
 
         #Sidebar Functionality:
         #setting the label icons' Pixmap
@@ -110,7 +136,7 @@ class Window(QMainWindow, Ui_MainWindow):
             for label, icon_name in self.labels.items():
                 icon_path = os.path.join(icon_dir, icon_name) #finds the icon path
                 if os.path.exists(icon_path): #makes sure it found the right path
-                    label.setPixmap(QPixmap(os.path.join(base_dir, "Icons", icon_name)))
+                    label.setPixmap(QPixmap(icon_path))
                 else:
                     logger.warning(f"Icon '{icon_name}' not found at {icon_path}.")
         set_icons()
@@ -586,7 +612,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 self.gridLayout_17.addWidget(self.main_web_view)
 
             CampingDatabase_SQLite.make_main_map()
-            file_url = QUrl("http://localhost:8000/main_map.html")
+            file_url = QUrl(f"http://localhost:{PORT}/main_map.html")
             self.main_web_view.load(file_url)
 
 

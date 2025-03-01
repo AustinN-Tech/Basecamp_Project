@@ -1,13 +1,22 @@
+import os
+import sys
 import shutil
 import sqlite3
-from datetime import datetime
-from PyQt6.QtWidgets import QMessageBox
 import folium
 import logging
+from datetime import datetime
+from PyQt6.QtWidgets import QMessageBox
 
 logger = logging.getLogger(__name__)
 
-conn = sqlite3.connect('ProjectDatabase.db')
+if getattr(sys, 'frozen', False): #checks if running as exe
+    base_dir = os.path.dirname(sys.executable)
+else:
+    base_dir = os.path.dirname(__file__)
+
+db_path = os.path.join(base_dir, 'ProjectDatabase.db') #proper pathing for db
+
+conn = sqlite3.connect(db_path)
 c = conn.cursor()
 
 ## table for campsites:
@@ -584,7 +593,14 @@ def make_main_map(): #main map creation
                 icon=folium.Icon(icon="mountain", prefix="fa", color="gray")  #icon for mountains
             ).add_to(main_map)
 
-        main_map.save("main_map.html")
+        if getattr(sys, 'frozen', False): #checks if running as exe
+            save_dir = os.path.dirname(sys.executable)
+        else:
+            save_dir = os.path.dirname(os.path.abspath(__file__))
+
+        map_path = os.path.join(save_dir, 'main_map.html') #defines where to save the map at
+
+        main_map.save(map_path)
         logger.info("Main map created.")
     except sqlite3.Error as e:
         logger.error(f"Database Error: {e}")
