@@ -2,9 +2,11 @@ import sys
 import os
 import logging
 import http.server
+from http.server import HTTPServer
 import socketserver
 import socket
 import threading
+import time
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtCore import QTime, QDate, QUrl
 from PyQt6.QtGui import QPixmap, QIcon
@@ -18,10 +20,12 @@ if getattr(sys, 'frozen', False): #checks if running as exe
     direct = os.path.dirname(sys.executable)
     #setting up the log directory:
     log_dir = os.path.join(direct, 'logs')
-    if not log_dir: #if not created, creates one
+    if not os.path.exists(log_dir): #if not created, creates one
         os.makedirs(log_dir)
 
     log_file = os.path.join(log_dir, 'camp_app_log.log')
+    sys.stdout = open(log_file, "w", buffering=1)  # Line-buffered output
+    sys.stderr = sys.stdout  # Redirect errors to the same log file
 else: #not needed if running as .py
     log_file = 'camp_app_log.log'
 
@@ -611,8 +615,11 @@ class Window(QMainWindow, Ui_MainWindow):
                 self.main_web_view = QWebEngineView()
                 self.gridLayout_17.addWidget(self.main_web_view)
 
+            time.sleep(1)
+
             CampingDatabase_SQLite.make_main_map()
             file_url = QUrl(f"http://localhost:{PORT}/main_map.html")
+            logger.info(f"Loading map from {file_url}")
             self.main_web_view.load(file_url)
 
 

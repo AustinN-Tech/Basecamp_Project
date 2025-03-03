@@ -19,37 +19,46 @@ db_path = os.path.join(base_dir, 'ProjectDatabase.db') #proper pathing for db
 conn = sqlite3.connect(db_path)
 c = conn.cursor()
 
-## table for campsites:
-# c.execute("""
-#     CREATE TABLE campsite (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             name TEXT NOT NULL COLLATE NOCASE,
-#             state TEXT NOT NULL COLLATE NOCASE,
-#             rating REAL NOT NULL CHECK (rating BETWEEN 0 AND 5),
-#             description TEXT,
-#             url TEXT,
-#             longitude REAL,
-#             latitude REAL
-#             )
-#         """)
 
-# # table for mountains:
-# c.execute("""
-#     CREATE TABLE mountain (
-#             id INTEGER PRIMARY KEY AUTOINCREMENT,
-#             name TEXT NOT NULL COLLATE NOCASE,
-#             state TEXT NOT NULL COLLATE NOCASE,
-#             rating REAL NOT NULL CHECK (rating BETWEEN 0 AND 5),
-#             elevation REAL NOT NULL CHECK (elevation >= 0),
-#             ascension REAL NOT NULL CHECK (ascension >= 0),
-#             time_completed TEXT NOT NULL CHECK (time_completed LIKE '__:__'),
-#             description TEXT,
-#             date TEXT NOT NULL CHECK (date LIKE '____-__-__'),
-#             url TEXT,
-#             longitude REAL,
-#             latitude REAL
-#             )
-#         """)
+def start_new_database(): #creates appropriate tables if they don't exist already (ie: a new .db file)
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+# table for campsites:
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS campsite (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL COLLATE NOCASE,
+                state TEXT NOT NULL COLLATE NOCASE,
+                rating REAL NOT NULL CHECK (rating BETWEEN 0 AND 5),
+                description TEXT,
+                url TEXT,
+                longitude REAL,
+                latitude REAL
+                )
+            """)
+
+    # table for mountains:
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS mountain (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL COLLATE NOCASE,
+                state TEXT NOT NULL COLLATE NOCASE,
+                rating REAL NOT NULL CHECK (rating BETWEEN 0 AND 5),
+                elevation REAL NOT NULL CHECK (elevation >= 0),
+                ascension REAL NOT NULL CHECK (ascension >= 0),
+                time_completed TEXT NOT NULL CHECK (time_completed LIKE '__:__'),
+                description TEXT,
+                date TEXT NOT NULL CHECK (date LIKE '____-__-__'),
+                url TEXT,
+                longitude REAL,
+                latitude REAL
+                )
+            """)
+
+    conn.commit()
+    conn.close()
+
+start_new_database()
 
 def error_popup(error_type, error): #popup for errors.
     logger.error(f"{error_type}: {error}")
@@ -551,7 +560,8 @@ def make_main_map(): #main map creation
         main_map = folium.Map(
             location = [39.8283,-98.5795],
             zoom_start = 5,
-            tiles = 'https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png',
+            # tiles = 'https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png',
+            tiles = "OpenStreetMap",
             attr = "Stadia.Outdoors"
         )
 
