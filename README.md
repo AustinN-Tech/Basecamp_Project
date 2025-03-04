@@ -19,7 +19,10 @@ I originally got the idea for this application because I was using a website for
 * Interactive Mapping – Visualize locations directly on a map for better trip planning
 * Detailed Statistics –  Find summarized information of campsites/mountains
 
-[!Adding a Mountain](screenshots/mountain_create.png)
+![Map Page](screenshots/map_page.png)
+![Adding a Mountain](screenshots/mountain_create.png)
+![Displaying Campsites](screenshots/campsite_display.png)
+![Mountain Statistics](screenshots/mountain_stats.png)
 
 ## How Its Made:
 1. Early Development: CSV File Storage
