@@ -19,6 +19,7 @@ I originally got the idea for this application because I was using a website for
 * Interactive Mapping – Visualize locations directly on a map for better trip planning
 * Detailed Statistics –  Find summarized information of campsites/mountains
 
+[!Adding a Mountain](screenshots/mountain_create.png)
 
 ## How Its Made:
 1. Early Development: CSV File Storage
@@ -75,7 +76,7 @@ taskkill /PID {CORRESPONDING PID NUMBER} /F
 ```
 This will close the server and fix the issue, allowing the map to display correctly.
 
-3. Windows 10 UI Differences & Formatting Issue:
+2. Windows 10 UI Differences & Formatting Issue:
 - On Windows 10, the UI has visual differences.
 - The “Create Mountain” page has incorrect formatting but remains functional.
 
