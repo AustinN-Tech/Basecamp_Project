@@ -1,4 +1,4 @@
-### Basecamp App
+# Basecamp App
 Basecamp is an application that manages campsites and mountains in a database for hikers, campers, and anyone who likes the outdoors. It allows users to create campsite/mountain entries, customizing the name, rating, description, location on the map, and more.
 
 ## Motivation:
@@ -49,7 +49,7 @@ I originally got the idea for this application because I was using a website for
 - After finalizing the UI and database, I used Pyinstaller to package all of my code into a .exe file.
 - This allows users to run the application as a standalone program without needing Python installed.
 
-Skills Learned:
+## Skills Learned:
 - Managing data using CSV files and later sqlite3.
 - Making functional UI applications with PyQt and Qt designer.
 - Connecting frontend and backend logic to put together an application that allows users to do CRUD operations to a sqlite3 database.
@@ -57,7 +57,7 @@ Skills Learned:
 - Packaging code together into a .exe file using Pyinstaller.
 - Using github for the first time to log the progress of my project, create a README, and make a finalized release version of my application.
 
-Known Bugs:
+## Known Bugs:
 1. Local Server Not Closing Properly (Map Won’t Display):
 Sometimes the local server does not close properly when exiting the application. This causes future sessions from displaying the map.
 Solution: Check and close the server manually
@@ -72,18 +72,18 @@ This will close the server and fix the issue, allowing the map to display correc
 - The “Create Mountain” page has incorrect formatting but remains functional.
 
 ## Installation & Usage:
-# Installing the .exe version of the application:
-Navigate to the release version of Basecamp on github (https://github.com/AustinN-Tech/Camping_Project/releases/tag/v1.0.0)
-Download 'Basecamp_v1.0.0.zip' from the assets below.
-Extract the zip file to anywhere on your computer.
-Run Basecamp.exe inside the extracted folder.
-(Optional) Recommended to make a shortcut of Basecamp.exe and put that in an accessible place.
-Important Notes:
+### Installing the .exe version of the application:
+1. Navigate to the release version of Basecamp on github (https://github.com/AustinN-Tech/Camping_Project/releases/tag/v1.0.0)
+2. Download 'Basecamp_v1.0.0.zip' from the assets below.
+3. Extract the zip file to anywhere on your computer.
+4. Run Basecamp.exe inside the extracted folder.
+5. (Optional) Recommended to make a shortcut of Basecamp.exe and put that in an accessible place.
+**Important Notes:**
 Windows may show a SmartScreen warning since the app is unsigned. Click "More info" then "Run anyway."
 Your firewall may ask permission for the local server. Allow it to ensure maps load properly.
 
 
-# To use the Python code of the application:
+### To use the Python code of the application:
 1. Clone the repository on github.
 2. Install the dependencies using:
 3. pip install -r requirements.txt
