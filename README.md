@@ -44,12 +44,14 @@ I originally got the idea for this application because I was using a website for
 - Connected all of the sidebar buttons to navigate to the appropriate pages.
 - Connected logic to the input widgets to ensure compatibility with the database.
 - Linked the sqlite3 database logic to the UI.
+
 **Challenges:** There were many times I had to adjust the UI or modify the functions in the database to get the application working appropriately
 5. Adding Mapping Functionality using Folium
 - I wanted to add mapping for more advanced camp planning and a visual application of the data.
 - I used folium to create the map in a .html file. 
 - Added coordinate columns to my database to display the markers of each item.
 - Used QWebEngine to display the map in the application.
+
 **Challenges:** PyQt blocked local html files from loading (as it saw it as a security concern) so I created a local web server to work around this issue.
 6. Packaging the Application:
 - After finalizing the UI and database, I used Pyinstaller to package all of my code into a .exe file.
