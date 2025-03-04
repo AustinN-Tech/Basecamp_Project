@@ -91,6 +91,7 @@ This will close the server and fix the issue, allowing the map to display correc
 3. Extract the zip file to anywhere on your computer.
 4. Run Basecamp.exe inside the extracted folder.
 5. (Optional) Recommended to make a shortcut of Basecamp.exe and put that in an accessible place.
+
 **Important Notes:**
 Windows may show a SmartScreen warning since the app is unsigned. Click "More info" then "Run anyway."
 Your firewall may ask permission for the local server. Allow it to ensure maps load properly.
