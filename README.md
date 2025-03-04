@@ -4,6 +4,7 @@ Basecamp is an application that manages campsites and mountains in a database fo
 ## Motivation:
 I originally got the idea for this application because I was using a website for finding campsites and it always loaded slowly and didn’t work at all without wifi. I wanted to create an application tailored to my needs and to have the ability to work offline. I also added mountains because I thought it would be cool and a good way to track my mountain climbing progress.
 
+
 ## Tech Stack Used:
 * Python – Primary programming language.
 * PyQt6 – UI framework for making interactive desktop application
@@ -17,6 +18,7 @@ I originally got the idea for this application because I was using a website for
 * Powerful Filtering Tools – Quickly find and display specific campsites or mountains
 * Interactive Mapping – Visualize locations directly on a map for better trip planning
 * Detailed Statistics –  Find summarized information of campsites/mountains
+
 
 ## How Its Made:
 1. Early Development: CSV File Storage
@@ -49,27 +51,34 @@ I originally got the idea for this application because I was using a website for
 - After finalizing the UI and database, I used Pyinstaller to package all of my code into a .exe file.
 - This allows users to run the application as a standalone program without needing Python installed.
 
+
 ## Skills Learned:
-- Managing data using CSV files and later sqlite3.
-- Making functional UI applications with PyQt and Qt designer.
-- Connecting frontend and backend logic to put together an application that allows users to do CRUD operations to a sqlite3 database.
-- Crucial skills for debugging projects and applications.
-- Packaging code together into a .exe file using Pyinstaller.
-- Using github for the first time to log the progress of my project, create a README, and make a finalized release version of my application.
+1. Managing data using CSV files and later sqlite3.
+2. Making functional UI applications with PyQt and Qt designer.
+3. Connecting frontend and backend logic to put together an application that allows users to do CRUD operations to a sqlite3 database.
+4. Crucial skills for debugging projects and applications.
+5. Packaging code together into a .exe file using Pyinstaller.
+6. Using github for the first time to log the progress of my project, create a README, and make a finalized release version of my application.
+
 
 ## Known Bugs:
 1. Local Server Not Closing Properly (Map Won’t Display):
 Sometimes the local server does not close properly when exiting the application. This causes future sessions from displaying the map.
 Solution: Check and close the server manually
 First check if the server is running using this command below in the command prompt:
+```bash
 netstat -ano | findstr :8001
+```
 This will show the list of connections the server is using. Locate the PID number on the far right. Do the following command but replace {CORRESPONDING PID NUMBER} with the actual PID number.
+```bash
 taskkill /PID {CORRESPONDING PID NUMBER} /F
+```
 This will close the server and fix the issue, allowing the map to display correctly.
 
-2. Windows 10 UI Differences & Formatting Issue:
+3. Windows 10 UI Differences & Formatting Issue:
 - On Windows 10, the UI has visual differences.
 - The “Create Mountain” page has incorrect formatting but remains functional.
+
 
 ## Installation & Usage:
 ### Installing the .exe version of the application:
@@ -82,12 +91,11 @@ This will close the server and fix the issue, allowing the map to display correc
 Windows may show a SmartScreen warning since the app is unsigned. Click "More info" then "Run anyway."
 Your firewall may ask permission for the local server. Allow it to ensure maps load properly.
 
-
 ### To use the Python code of the application:
 1. Clone the repository on github.
 2. Install the dependencies using:
-3. pip install -r requirements.txt
-4. Run the main_app.py file.
+4. ```pip install -r requirements.txt```
+5. Run the main_app.py file.
 
 
 ## Icon Attribution:
