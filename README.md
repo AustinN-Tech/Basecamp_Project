@@ -19,6 +19,10 @@ I originally got the idea for this application because I was using a website for
 * Interactive Mapping – Visualize locations directly on a map for better trip planning
 * Detailed Statistics –  Find summarized information of campsites/mountains
 
+![Map Page](screenshots/map_page.png)
+![Adding a Mountain](screenshots/mountain_create.png)
+![Displaying Campsites](screenshots/campsite_display.png)
+![Mountain Statistics](screenshots/mountain_stats.png)
 
 ## How Its Made:
 1. Early Development: CSV File Storage
@@ -40,13 +44,13 @@ I originally got the idea for this application because I was using a website for
 - Connected all of the sidebar buttons to navigate to the appropriate pages.
 - Connected logic to the input widgets to ensure compatibility with the database.
 - Linked the sqlite3 database logic to the UI.
-**Challenges:** There were many times I had to adjust the UI or modify the functions in the database to get the application working appropriately
+- **Challenges:** There were many times I had to adjust the UI or modify the functions in the database to get the application working appropriately
 5. Adding Mapping Functionality using Folium
 - I wanted to add mapping for more advanced camp planning and a visual application of the data.
 - I used folium to create the map in a .html file. 
 - Added coordinate columns to my database to display the markers of each item.
 - Used QWebEngine to display the map in the application.
-**Challenges:** PyQt blocked local html files from loading (as it saw it as a security concern) so I created a local web server to work around this issue.
+- **Challenges:** PyQt blocked local html files from loading (as it saw it as a security concern) so I created a local web server to work around this issue.
 6. Packaging the Application:
 - After finalizing the UI and database, I used Pyinstaller to package all of my code into a .exe file.
 - This allows users to run the application as a standalone program without needing Python installed.
@@ -75,7 +79,7 @@ taskkill /PID {CORRESPONDING PID NUMBER} /F
 ```
 This will close the server and fix the issue, allowing the map to display correctly.
 
-3. Windows 10 UI Differences & Formatting Issue:
+2. Windows 10 UI Differences & Formatting Issue:
 - On Windows 10, the UI has visual differences.
 - The “Create Mountain” page has incorrect formatting but remains functional.
 
@@ -87,6 +91,7 @@ This will close the server and fix the issue, allowing the map to display correc
 3. Extract the zip file to anywhere on your computer.
 4. Run Basecamp.exe inside the extracted folder.
 5. (Optional) Recommended to make a shortcut of Basecamp.exe and put that in an accessible place.
+
 **Important Notes:**
 Windows may show a SmartScreen warning since the app is unsigned. Click "More info" then "Run anyway."
 Your firewall may ask permission for the local server. Allow it to ensure maps load properly.
