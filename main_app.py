@@ -591,7 +591,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         state_total, total, formatted_text, average_ascension, average_elevation = CampingDatabase_SQLite.statistics(type)
 
-        header_title = "Campsites by State"
+        header_title = f"{type.title()}s by State"
 
         if type == 'campsite':
             #updating info:
