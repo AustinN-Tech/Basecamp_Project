@@ -2,7 +2,7 @@
 Basecamp is an application that manages campsites and mountains in a database for hikers, campers, and anyone who likes the outdoors. It allows users to create campsite/mountain entries, customizing the name, rating, description, location on the map, and more.
 
 ## Motivation:
-I originally got the idea for this application because I was using a website for finding campsites and it always loaded slowly and didn’t work at all without wifi. I wanted to create an application tailored to my needs and to have the ability to work offline. I also added mountains because I thought it would be cool and a good way to track my mountain climbing progress.
+I originally got the idea for this application because I was using a website for finding campsites and it always loaded slowly and didn’t work at all without wifi. I wanted to create an application tailored to my needs and to have the ability to work offline. Additionally, I added mountains in order to track my mountain climbing progress.
 
 
 ## Tech Stack Used:
@@ -85,22 +85,12 @@ This will close the server and fix the issue, allowing the map to display correc
 
 
 ## Installation & Usage:
-### Installing the .exe version of the application:
-1. Navigate to the release version of Basecamp on github (https://github.com/AustinN-Tech/Camping_Project/releases/tag/v1.0.0)
-2. Download 'Basecamp_v1.0.0.zip' from the assets below.
-3. Extract the zip file to anywhere on your computer.
-4. Run Basecamp.exe inside the extracted folder.
-5. (Optional) Recommended to make a shortcut of Basecamp.exe and put that in an accessible place.
-
-**Important Notes:**
-Windows may show a SmartScreen warning since the app is unsigned. Click "More info" then "Run anyway."
-Your firewall may ask permission for the local server. Allow it to ensure maps load properly.
-
-### To use the Python code of the application:
 1. Clone the repository on github.
 2. Install the dependencies using:
 4. ```pip install -r requirements.txt```
 5. Run the main_app.py file.
+
+**Note:** I’ve excluded the compiled .exe from this repo because some antivirus tools like Windows Defender can mistakenly flag self-compiled executables. If you desire the .exe version, you compile it yourself using PyInstaller.
 
 
 ## Icon Attribution:
