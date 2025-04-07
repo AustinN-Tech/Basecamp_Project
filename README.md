@@ -90,7 +90,7 @@ This will close the server and fix the issue, allowing the map to display correc
 4. ```pip install -r requirements.txt```
 5. Run the main_app.py file.
 
-**Note:** I’ve excluded the compiled .exe from this repo because some antivirus tools like Windows Defender can mistakenly flag self-compiled executables. If you desire the .exe version, you compile it yourself using PyInstaller.
+**Note:** I’ve excluded the compiled .exe from this repo because some antivirus tools like Windows Defender can mistakenly flag self-compiled executables. If you desire the .exe version, you can compile it yourself using PyInstaller.
 
 
 ## Icon Attribution:
